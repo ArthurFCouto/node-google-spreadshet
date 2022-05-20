@@ -1,0 +1,22 @@
+{
+    "env": {
+        "node": true,
+        "es2021": true
+    },
+    "extends": [
+        "airbnb-base"
+    ],
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module"
+    },
+    "rules": {
+        "no-console": "off",
+        "linebreak-style": ["error", "windows"],
+        "arrow-parens": ["error", "always"],
+        "arrow-spacing": ["error", {"before": false, "after": true}],
+        "quotes": ["error", "single"],
+        "implicit-arrow-linebreak": ["error", "beside"],
+        "max-len": [2, 200, 4, {"ignoreUrls": true}]
+    }
+}
