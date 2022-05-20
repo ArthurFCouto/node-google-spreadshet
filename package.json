@@ -2,9 +2,8 @@
   "name": "productionapi",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "src/server/index.js",
   "scripts": {
-    "start": "node src/server/index.js",
     "dev": "nodemon src/server/index.js",
     "test": "mocha test/test.js"
   },
