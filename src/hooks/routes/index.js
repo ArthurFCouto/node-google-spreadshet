@@ -24,10 +24,12 @@ const handleRegex = (url)=> {
     const regexp = pathToRegexp(url);
     const parameters = match(url);
     const src = request.url.indexOf('?') !== -1 ? request.url.slice(0, request.url.indexOf('?')) : request.url;
-    request.path = JSON.parse(JSON.stringify(parameters(src).params));
+    const { params } = parameters(src);
+    request.path = params && JSON.parse(JSON.stringify(parameters(src).params));
     request.params = handleParams();
     return regexp.test(src);
-  } catch {
+  } catch (error) {
+    console.error('Erro no handleRegex', error);
     return false;
   }
 };
