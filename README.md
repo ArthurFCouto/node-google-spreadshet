@@ -6,6 +6,7 @@
 3º surcrase (npm install --save-dev sucrase, npx sucrease-node index.js)
 4º ESlint : https://blog.cod3r.com.br/organizacao-e-padronizacao-com-eslint/
 5º Biblioteca MOCHA (https://mochajs.org/) para testes, desenvolvimento orientado a testes.
+6º Googlesheets : https://jvvoliveira.medium.com/manipulando-google-sheets-com-node-js-4a551c68b270
 
 Siga o tutorial abaixo para utilizar esta aplicação. Esta aplicação será hospedada na plataforma vercel.
 

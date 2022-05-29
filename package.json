@@ -14,8 +14,8 @@
   "dependencies": {
     "axios": "^0.27.2",
     "bluesoft-cosmos-api": "^1.0.0",
-    "datocms-client": "^3.5.20",
     "dotenv": "^16.0.0",
+    "google-spreadsheet": "^3.3.0",
     "nodemon": "^2.0.15",
     "path-to-regexp": "^6.2.1"
   },

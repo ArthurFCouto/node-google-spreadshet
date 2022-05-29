@@ -10,7 +10,7 @@ async function routes(request, response) {
   routesCustom.get('/api/v1/produtosjson', produtosjsoncontroller.getData);
   routesCustom.get('/api/v1/produtosjson/:id', produtosjsoncontroller.getById);
   routesCustom.get('/api/v1/produtosjson/image/:name', produtosjsoncontroller.getImage);
-  routesCustom.get('/api/v1/varejo', varejocontroller.getDataDatoCMS);
+  routesCustom.get('/api/v1/varejo', varejocontroller.getData);
   routesCustom.get('/api/v1/varejo/buscar', varejocontroller.getByDescription);
   // (\\d+) <= Definindo que serão aceitos apenas números para o path ID
   routesCustom.get('/api/v1/varejo/:id(\\d+)', varejocontroller.getById);
@@ -22,7 +22,7 @@ async function routes(request, response) {
       details: {
         status: 404,
         statusText: 'Not found',
-        data: `O endereço ${request.url} não existe`,
+        data: `O endereço ${request.url}, com o método ${request.method} não existe`,
       },
     }));
   });

@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 const fs = require('fs');
 const path = require('path');
-const { modelResponseError } = require('../util');
+const { modelResponseError } = require('../util/modelsResponse');
 const { createError } = require('../util/errors');
 
 class Controller {

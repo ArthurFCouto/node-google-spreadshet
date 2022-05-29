@@ -1,39 +1,31 @@
 /* eslint-disable no-restricted-globals */
 /* eslint-disable class-methods-use-this */
 const cosmosService = require('../../service/cosmosservice');
-const datoService = require('../../service/datoservice');
+const { Context, Product } = require('../../service/googlesheetsservice');
 
 class CosmosController {
-  async getDataDatoCMS(request, response) {
-    const data = await datoService.getAllProduct().catch((error)=> error);
+  async getData(request, response) {
+    const context = new Context(new Product());
+    const data = await context.getAll().catch((error)=> error);
     if (data.error) {
       response.writeHead(data.details.status);
-      return response.end(JSON.stringify(data));
     }
-    response.writeHead(200);
     return response.end(JSON.stringify(data));
   }
 
   async getByDescription(request, response) {
-    const { description, method } = request.params;
-    if (description && method && (method.toUpperCase() === 'DATOCMS' || method.toUpperCase() === 'COSMOS')) {
+    const context = new Context(new Product());
+    const { description, mode } = request.params;
+    if (description) {
       let data = {};
-      let status = 200;
-      if (method.toUpperCase() === 'DATOCMS') {
-        data = await datoService.getProductByDescription(description).catch((error)=> error);
-        if (data && !data.error && data.listaProduto.length === 0) {
-          data = await cosmosService.getByDescription(description).catch((error)=> error);
-        }
-        if (data.error) {
-          status = data.details.status;
-        }
-      } else {
+      if (mode && mode.toUpperCase() === 'COSMOS') {
         data = await cosmosService.getByDescription(description).catch((error)=> error);
-        if (data && data.error) {
-          status = data.details.status;
-        }
+      } else {
+        data = await context.getByDescription(description).catch((error)=> error);
       }
-      response.writeHead(status);
+      if (data && data.error) {
+        response.writeHead(data.details.status);
+      }
       return response.end(JSON.stringify(data));
     }
     response.writeHead(401);
@@ -42,15 +34,15 @@ class CosmosController {
       details: {
         status: '401',
         statusText: 'Bad request',
-        data: 'Favor verificar os parâmetros description e method enviados',
+        data: 'Favor verificar os parâmetros description e mode',
       },
     }));
   }
 
   async getById(request, response) {
+    const context = new Context(new Product());
     const { id } = request.path;
-    response.writeHead(200);
-    let data = await datoService.getProductByCode(id).catch((error)=> error);
+    let data = await context.getById(id).catch((error)=> error);
     if (!data.error) {
       return response.end(JSON.stringify(data));
     }
@@ -58,21 +50,20 @@ class CosmosController {
     if (data.error) {
       response.writeHead(data.details.status);
     } else {
-      datoService.createProduct(data).then((product)=> console.log('Cadastro no DatoCMS: OK', product)).catch((error)=> console.log('Cadastro no DatoCMS: Fail', JSON.stringify(error)));
+      // Não foi utilizado o await pois não é necessário aguardar o cadastro para enviar a resposta ao usuário
+      context.create(data).then((product)=> console.log('Cadastro no GoogleSheets: OK', product)).catch((error)=> console.log('Cadastro no GoogleSheet: Fail', JSON.stringify(error)));
     }
     return response.end(JSON.stringify(data));
   }
 
   async getNextPage(request, response) {
-    const { url } = request;
-    const query = url.indexOf('=') !== -1 && url.slice(url.indexOf('=') + 1, url.length);
-    const validation = /^((http(s?):\/\/(api.)?[a-z]+.?[a-z]+.com.br\/))/;
+    const { nextUrl } = request.params;
     const custom = {};
-    if (query && validation.test(query)) {
+    if (nextUrl) {
       custom.status = 200;
-      custom.data = await cosmosService.getByNextPage(query);
+      custom.data = await cosmosService.getByNextPage(nextUrl);
       if (custom.data.error) {
-        custom.status = custom.data.details.status || 401;
+        custom.status = custom.data.details.status;
       }
       response.writeHead(custom.status);
       return response.end(JSON.stringify(custom.data));
@@ -83,22 +74,21 @@ class CosmosController {
       details: {
         status: '401',
         statusText: 'Bad request',
-        data: 'Url inválida',
+        data: 'Favor verificar o parâmetro url',
       },
     }));
   }
 
   async deleteProduct(request, response) {
+    const context = new Context(new Product());
     const { id } = request.path;
-    const custom = { };
-    if ((id) && (!isNaN(id))) {
-      custom.status = 200;
-      custom.data = await datoService.destroy(id).catch((error)=> error);
-      if (custom.data.error) {
-        custom.status = custom.data.details.status || 401;
+    // Além de verificar se o parâmetro foi enviado, é verificado se o mesmo é um número
+    if (id && (!isNaN(id))) {
+      const data = await context.delete(id).catch((error)=> error);
+      if (data.error) {
+        response.writeHead(data.details.status);
       }
-      response.writeHead(custom.status);
-      return response.end(JSON.stringify(custom.data));
+      return response.end(JSON.stringify(data));
     }
     response.writeHead(401);
     return response.end(JSON.stringify({

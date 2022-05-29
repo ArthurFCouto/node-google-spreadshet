@@ -19,7 +19,7 @@ const handleParams = ()=> {
   return data;
 };
 
-const regex = (url)=> {
+const handleRegex = (url)=> {
   try {
     const regexp = pathToRegexp(url);
     const parameters = match(url);
@@ -38,7 +38,7 @@ function router(req, res) {
 }
 
 router.prototype.get = async (url, callback)=> {
-  if (request.method === 'GET' && regex(url)) {
+  if (request.method === 'GET' && handleRegex(url)) {
     request._finished = true;
     return callback(request, response);
   }
@@ -46,7 +46,7 @@ router.prototype.get = async (url, callback)=> {
 };
 
 router.prototype.post = async (url, callback)=> {
-  if (request.method === 'POST' && regex(url)) {
+  if (request.method === 'POST' && handleRegex(url)) {
     request._finished = true;
     return callback(request, response);
   }
@@ -54,7 +54,15 @@ router.prototype.post = async (url, callback)=> {
 };
 
 router.prototype.delete = async (url, callback)=> {
-  if (request.method === 'DELETE' && regex(url)) {
+  if (request.method === 'DELETE' && handleRegex(url)) {
+    request._finished = true;
+    return callback(request, response);
+  }
+  return this;
+};
+
+router.prototype.put = async (url, callback)=> {
+  if (request.method === 'PUT' && handleRegex(url)) {
     request._finished = true;
     return callback(request, response);
   }
