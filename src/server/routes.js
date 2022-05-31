@@ -1,31 +1,25 @@
 const controller = require('../controller');
 const produtosjsoncontroller = require('../controller/produtosjsoncontroller');
 const varejocontroller = require('../controller/varejocontroller');
+const { handleCors, handleRouteNotFound } = require('../middlewares');
 const useRouter = require('../hooks/routes');
 
 async function routes(request, response) {
   const routesCustom = useRouter(request, response);
   routesCustom.jsonContentType();
+  routesCustom.use(handleCors);
   routesCustom.get('/api/v1/', controller.getLogo);
   routesCustom.get('/api/v1/produtosjson', produtosjsoncontroller.getData);
   routesCustom.get('/api/v1/produtosjson/:id', produtosjsoncontroller.getById);
   routesCustom.get('/api/v1/produtosjson/image/:name', produtosjsoncontroller.getImage);
   routesCustom.get('/api/v1/varejo', varejocontroller.getData);
   routesCustom.get('/api/v1/varejo/buscar', varejocontroller.getByDescription);
-  // (\\d+) <= Definindo que serão aceitos apenas números para o path ID
+  /*
+    \\d+ <= Definindo que serão aceitos apenas números para o path especificado
+  */
   routesCustom.get('/api/v1/varejo/:id(\\d+)', varejocontroller.getById);
   routesCustom.delete('/api/v1/varejo/:id(\\d+)', varejocontroller.deleteProduct);
-  routesCustom.use(()=> {
-    response.writeHead(404);
-    return response.end(JSON.stringify({
-      error: 'Rota inexistente',
-      details: {
-        status: 404,
-        statusText: 'Not found',
-        data: `O endereço ${request.url}, com o método ${request.method} não existe`,
-      },
-    }));
-  });
+  routesCustom.use(handleRouteNotFound);
 }
 
 function handleError(error, response) {
