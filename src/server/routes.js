@@ -29,15 +29,15 @@ function handleError(error, response) {
   return response.end(JSON.stringify({
     error: 'Erro interno no servidor, tente mais tarde',
     details: {
-      ststus: 500,
+      status: 500,
       statusText: 'Internal server error',
-      data: error.message,
+      data: error,
     },
   }));
 }
 
-async function handler(request, response) {
+async function handlerRoutes(request, response) {
   return routes(request, response).catch((error)=> handleError(error, response));
 }
 
-module.exports = handler;
+module.exports = handlerRoutes;

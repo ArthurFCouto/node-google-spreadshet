@@ -3,189 +3,121 @@
 const assert = require('assert');
 const cosmosService = require('../src/service/cosmosservice');
 const { Context, User, Product } = require('../src/service/googlesheetsservice');
+const {
+  USER,
+  USER_EXPECTED,
+  USER_FOR_UPDATE,
+  USER_AFTER_UPDATE,
+  USER_LIST,
+  USER_NOT_FOUND,
+  PRODUCT_EXPECT,
+  PRODUCT_LIST,
+  PRODUTCT_LIST_2,
+  PRODUCT_NOT_FOUND,
+  PRODUCT_EXPECT_GOOGLE,
+  PRODUTCT_LIST_GOOGLE,
+} = require('./mocks');
 
-describe('Cosmos Service', ()=> {
-  /* it('Busca um produto na api Cosmos pelo código', async ()=> {
-    const expected = {
-      id: 0,
-      barcodeProduto: 'https://api.cosmos.bluesoft.com.br/products/barcode/D215D0FAC1ACAEF6B65EE7ED9820DD38.png',
-      codigoProduto: 7891910000197,
-      descricaoProduto: 'AÇÚCAR REFINADO UNIÃO 1KGS',
-      imagemProduto: 'https://cdn-cosmos.bluesoft.com.br/products/7891910000197',
-      precoMedioNacional: 7.885,
-    };
-    const result = await cosmosService.geBytLins(7891910000197).catch((erro)=> erro);
-    assert.deepEqual(result, expected);
+describe('Cosmos Service', function () {
+  this.timeout(10000);
+
+  it('Busca um produto na api Cosmos pelo código', async ()=> {
+    const result = await cosmosService.geBytLins(PRODUCT_EXPECT.codigoProduto).catch((erro)=> erro);
+    assert.deepEqual(result, PRODUCT_EXPECT);
   });
 
   it('Busca uma lista na api Cosmos pela descrição', async ()=> {
-    const expected = {
-      atualPagina: 1,
-      porPagina: 30,
-      totalPagina: 4,
-      totalProduto: 103,
-      proximaPagina: 'https://api.cosmos.bluesoft.com.br/products?page=2&query=ACUCAR+REFINADO+UNIAO+1KGS',
-      listaProduto: [],
-    };
-    const result = await cosmosService.getByDescription('AÇÚCAR REFINADO UNIÃO 1KGS').catch((erro)=> erro);
+    const result = await cosmosService.getByDescription(PRODUCT_EXPECT.descricaoProduto).catch((erro)=> erro);
     const resultCompare = { ...result, listaProduto: [] };
-    assert.deepEqual(resultCompare, expected);
+    assert.deepEqual(resultCompare, PRODUCT_LIST);
   });
 
   it('Busca a segunda página da lista retornada pela api Cosmos', async ()=> {
-    const expected = {
-      atualPagina: 2,
-      porPagina: 30,
-      totalPagina: 4,
-      totalProduto: 103,
-      proximaPagina: 'https://api.cosmos.bluesoft.com.br/products?page=3&query=ACUCAR+REFINADO+UNIAO+1KGS',
-      listaProduto: [],
-    };
-    const result = await cosmosService.getByNextPage('https://api.cosmos.bluesoft.com.br/products?page=2&query=ACUCAR+REFINADO+UNIAO+1KGS').catch((erro)=> erro);
+    const result = await cosmosService.getByNextPage(PRODUCT_LIST.proximaPagina).catch((erro)=> erro);
     const resultCompare = { ...result, listaProduto: [] };
-    assert.deepEqual(resultCompare, expected);
-  }); */
+    assert.deepEqual(resultCompare, PRODUTCT_LIST_2);
+  });
+
+  it('Verificando se retorna um erro default', async ()=> {
+    const result = await cosmosService.geBytLins(0).catch((erro)=> erro);
+    assert.deepEqual(result, PRODUCT_NOT_FOUND);
+  });
 });
 
 describe('Testando o design strategies - Usuários', ()=> {
-  /* it('Criando um usuário na API planilha', async ()=> {
+  it('Criando um usuário na API planilha', async ()=> {
     const context = new Context(new User());
-    const expected = {
-      id: 0,
-      nome_usuario: 'Ingride',
-      email_usuario: 'ingride@gmail.com',
-      telefone_usuario: '38999731482',
-      senha_usuario: '12345678',
-      imagem_usuario: '',
-    };
-    const result = await context.create({
-      nome_usuario: 'Ingride',
-      email_usuario: 'ingride@gmail.com',
-      telefone_usuario: 38999731482,
-      senha_usuario: '12345678',
-    }).catch((error)=> error);
-    assert.deepEqual(result, expected);
+    const result = await context.create(USER).catch((error)=> error);
+    assert.deepEqual(result, USER_EXPECTED);
   }).timeout(10000);
 
   it('Atualizando um usuário pelo email na API planilha', async ()=> {
     const context = new Context(new User());
-    const expected = {
-      id: 0,
-      nome_usuario: 'Arthur',
-      email_usuario: 'arthur@gmail.com',
-      telefone_usuario: '38999414205',
-      senha_usuario: '12345678',
-      imagem_usuario: 'https://source.unsplash.com/640x640/?user',
-    };
-    const result = await context.update('arthur@gmail.com', {
-      nome_usuario: 'Arthur',
-      telefone_usuario: 38999414205,
-      imagem_usuario: 'https://source.unsplash.com/640x640/?user',
-    }).catch((error)=> error);
-    assert.deepEqual(result, expected);
+    const result = await context.update(USER.email_usuario, USER_FOR_UPDATE).catch((error)=> error);
+    assert.deepEqual(result, USER_AFTER_UPDATE);
   }).timeout(10000);
 
   it('Buscando todos os usuários da API planilhas', async ()=> {
-    const expected = [
-      {
-        id: 0,
-        nome_usuario: 'Arthur',
-        email_usuario: 'arthur@gmail.com',
-        telefone_usuario: '38999414205',
-        senha_usuario: '12345678',
-        imagem_usuario: 'https://source.unsplash.com/640x640/?user',
-      },
-      {
-        id: 0,
-        nome_usuario: 'Mariah',
-        email_usuario: 'mariah@gmail.com',
-        telefone_usuario: '38998628103',
-        senha_usuario: '12345678',
-        imagem_usuario: 'https://source.unsplash.com/640x640/?user',
-      },
-      {
-        id: 0,
-        nome_usuario: 'Ingride',
-        email_usuario: 'ingride@gmail.com',
-        telefone_usuario: '38998628103',
-        senha_usuario: '12345678',
-        imagem_usuario: '',
-      },
-    ];
     const context = new Context(new User());
     const result = await context.getAll().catch((error)=> error);
-    assert.deepEqual(result, expected);
+    assert.deepEqual(result, USER_LIST);
   }).timeout(10000);
 
   it('Excluindo um usuário pelo email', async ()=> {
     const context = new Context(new User());
-    const expected = {
-      id: 0,
-      nome_usuario: 'Ingride',
-      email_usuario: 'ingride@gmail.com',
-      telefone_usuario: '38998628103',
-      senha_usuario: '12345678',
-      imagem_usuario: '',
-    };
-    const result = await context.delete('ingride@gmail.com').catch((error)=> error);
-    assert.deepEqual(result, expected);
-  }).timeout(10000); */
+    const result = await context.delete(USER.email_usuario).catch((error)=> error);
+    assert.deepEqual(result, USER_AFTER_UPDATE);
+  }).timeout(10000);
+
+  it('Verificando se retorna um erro default', async ()=> {
+    const context = new Context(new User());
+    const result = await context.getById(USER.email_usuario).catch((error)=> error);
+    assert.deepEqual(result, USER_NOT_FOUND);
+  }).timeout(10000);
+
+  it('Buscando um usuário pelo e-mail', async ()=> {
+    const context = new Context(new User());
+    const result = await context.getById(USER_LIST[0].email_usuario).catch((error)=> error);
+    assert.deepEqual(result, USER_LIST[0]);
+  }).timeout(10000);
 });
 
 describe('Testando o design strategies - Produtos', ()=> {
-  /* it('Cria um produto na API planilhas pelo código', async ()=> {
+  it('Cria um produto na API planilhas pelo código', async ()=> {
     const context = new Context(new Product());
-    const expected = {
-      id: 0,
-      barcodeProduto: 'https://api.cosmos.bluesoft.com.br/products/barcode/D215D0FAC1ACAEF6B65EE7ED9820DD38.png',
-      codigoProduto: '789191000019',
-      descricaoProduto: 'AÇÚCAR REFINADO UNIÃO 1KGS',
-      imagemProduto: 'https://cdn-cosmos.bluesoft.com.br/products/7891910000197',
-      precoMedioNacional: 5.89,
-    };
-    const result = await context.create(expected).catch(((erro)=> erro));
-    assert.deepEqual(result, expected);
+    const result = await context.create(PRODUCT_EXPECT_GOOGLE).catch(((erro)=> erro));
+    assert.deepEqual(result, PRODUCT_EXPECT_GOOGLE);
   }).timeout(10000);
 
   it('Busca todos os produtos na API planilhas', async ()=> {
     const context = new Context(new Product());
-    const expected = {
-      atualPagina: 1,
-      listaProduto: [],
-      porPagina: 2,
-      proximaPagina: undefined,
-      totalPagina: 1,
-      totalProduto: 2,
-    };
     const result = await context.getAll().catch(((erro)=> erro));
-    assert.deepEqual({ ...result, listaProduto: [] }, expected);
+    assert.deepEqual({
+      ...result,
+      listaProduto: [],
+    }, {
+      ...PRODUTCT_LIST_GOOGLE,
+      listaProduto: [],
+      proximaPagina: undefined,
+    });
   }).timeout(10000);
 
   it('Apaga um produto na API planilhas pelo código', async ()=> {
     const context = new Context(new Product());
-    const expected = {
-      id: 0,
-      barcodeProduto: 'https://api.cosmos.bluesoft.com.br/products/barcode/D215D0FAC1ACAEF6B65EE7ED9820DD38.png',
-      codigoProduto: '789191000019',
-      descricaoProduto: 'AÇÚCAR REFINADO UNIÃO 1KGS',
-      imagemProduto: 'https://cdn-cosmos.bluesoft.com.br/products/7891910000197',
-      precoMedioNacional: 5.89,
-    };
-    const result = await context.delete('789191000019').catch(((erro)=> erro));
-    assert.deepEqual(result, expected);
+    const result = await context.delete(PRODUCT_EXPECT_GOOGLE.codigoProduto).catch(((erro)=> erro));
+    assert.deepEqual(result, PRODUCT_EXPECT_GOOGLE);
   }).timeout(10000);
 
   it('Busca um produto na API planilhas pela descrição', async ()=> {
-    const expected = {
-      atualPagina: 1,
-      listaProduto: [],
-      porPagina: 1,
-      proximaPagina: undefined,
-      totalPagina: 1,
-      totalProduto: 1,
-    };
     const context = new Context(new Product());
     const result = await context.getByDescription('refinado').catch(((erro)=> erro));
-    assert.deepEqual({ ...result, listaProduto: [] }, expected);
-  }).timeout(10000); */
+    assert.deepEqual({
+      ...result,
+      listaProduto: [],
+    }, {
+      ...PRODUTCT_LIST_GOOGLE,
+      porPagina: 0,
+      totalProduto: 0,
+    });
+  }).timeout(10000);
 });

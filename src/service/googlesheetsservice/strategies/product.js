@@ -25,14 +25,13 @@ const handleError = {
 class ProductStrategy extends CustomInterface {
   constructor() {
     super();
+    this._index = 1;
     this._error = null;
   }
 
-  // Retorna a conexão com o google planilhas
   async _getDocument() {
     try {
       const document = new GoogleSpreadsheet(ws.id);
-      // Propriedade private_key com replace, para evitar problemas pois está no arquivo .env
       await document.useServiceAccountAuth({
         client_email: process.env.CLIENT_EMAIL,
         private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
@@ -46,11 +45,10 @@ class ProductStrategy extends CustomInterface {
     }
   }
 
-  // Retorna as linhas da planilha de produtos
   async _getRows() {
     try {
       return this._getDocument().then(async (response)=> {
-        const sheet = response.sheetsByIndex[1];
+        const sheet = response.sheetsByIndex[this._index];
         return sheet.getRows().then((rows)=> rows);
       });
     } catch (error) {
@@ -60,10 +58,9 @@ class ProductStrategy extends CustomInterface {
     }
   }
 
-  // Retorna a planilha de produtos
   async _getSheet() {
     try {
-      return this._getDocument().then(async (response)=> response.sheetsByIndex[1]);
+      return this._getDocument().then(async (response)=> response.sheetsByIndex[this._index]);
     } catch (error) {
       console.error('Erro ao recuperar a planilha', error);
       this._error = error;
@@ -71,7 +68,6 @@ class ProductStrategy extends CustomInterface {
     }
   }
 
-  // Verifica se existe o produto com o ID e o retorna
   async _checkExist(id) {
     let product;
     const rows = await this._getRows();
@@ -84,7 +80,6 @@ class ProductStrategy extends CustomInterface {
     return product;
   }
 
-  // Busca todos os produtos
   async getAll() {
     try {
       const rows = await this._getRows();
@@ -94,38 +89,33 @@ class ProductStrategy extends CustomInterface {
     }
   }
 
-  // Insere uma linha(produto) na planilha
   async create(data) {
     try {
       if (await this._checkExist(data.codigoProduto)) {
-        return modelResponseError(`Ops! Produto com código ${data.codigoProduto} já cadastrado`, handleError[401]);
+        return modelResponseError('Ops! Este produto já cadastrado', handleError[401]);
       }
-      let product;
       const sheet = await this._getSheet();
-      await sheet.addRow({
+      return sheet.addRow({
         descricao_produto: data.descricaoProduto,
-        imagem_produto: data.imagemProduto,
         barcode_produto: data.barcodeProduto,
+        imagem_produto: data.imagemProduto,
+        detalhe_produto: data.detalheProduto,
         preco_medio_nacional: data.precoMedioNacional || '0.00',
         codigo_produto: data.codigoProduto,
         _createdAt: new Date().toLocaleString('pt-BR', { timeZone: 'UTC' }),
         _updatedAt: new Date().toLocaleString('pt-BR', { timeZone: 'UTC' }),
       })
-        .then((res)=> {
-          product = res;
-        })
+        .then((response)=> modelResponseProduct(response))
         .catch((error)=> {
           console.error('Erro ao cadastrar o produto na planilha', error);
           this._error = error;
           throw new Error();
         });
-      return modelResponseProduct(product);
     } catch {
       return modelResponseError('Ops! Ocorreu um erro durante o cadastro do produto', this._error);
     }
   }
 
-  // Busco um unico produto pelo código
   async getById(id) {
     try {
       const product = await this._checkExist(id);
@@ -138,7 +128,6 @@ class ProductStrategy extends CustomInterface {
     }
   }
 
-  // Busca todos os produtos que contém na descrição a descrição enviada
   async getByDescription(description) {
     try {
       const rows = await this._getRows();
@@ -155,7 +144,6 @@ class ProductStrategy extends CustomInterface {
     }
   }
 
-  // Deleta uma linha(produto) da planilha pelo código
   async delete(id) {
     try {
       const produto = await this._checkExist(id);

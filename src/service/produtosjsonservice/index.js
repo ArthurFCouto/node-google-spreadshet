@@ -6,13 +6,14 @@ const path = require('path');
 const produtosjson = require('../../data/produtosjson');
 const { modelResponseError } = require('../../util/modelsResponse');
 const { createError } = require('../../util/errors');
+const { config } = require('../../server/config');
 
 require('dotenv').config();
 
 const modelResponse = (response)=> response.map((item)=> ({
   id: item.id,
   nome: item.name,
-  image: `/api/v1/produtosjson/image/${item.image}`,
+  image: `${config.produtosjson.urlImage}${item.image}`,
   preco: item.price,
   estoque: item.amount,
   detalhes: item.details,

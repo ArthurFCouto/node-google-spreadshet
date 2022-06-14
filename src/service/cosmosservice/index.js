@@ -26,14 +26,18 @@ class CosmosService {
   }
 
   getByDescription(description) {
-    // Remove os caracteres especiais e depois substitui os espaços em branco por '+'
+    /*
+      Remove os caracteres especiais e depois substitui os espaços em branco por '+'.
+    */
     const query = description.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '+');
     const url = `${process.env.COSMOS_ENDPOINT}/products?query=${query}`;
     return handleResults(url);
   }
 
   getByNextPage(url) {
-    // Válida se é uma url válida
+    /*
+      Válida se é uma url válida.
+    */
     const validation = /^((http(s?):\/\/(api.)?[a-z]+.?[a-z]+.com.br\/))/;
     return validation.test(url) ? handleResults(url) : modelResponseError('Ops! Ocorreu um erro durante a pesquisa', { status: 401, statusText: 'Bad Request', data: 'Parâmetro url inválido' });
   }
