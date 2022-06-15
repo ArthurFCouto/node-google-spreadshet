@@ -23,7 +23,7 @@ describe('Cosmos Service', function () {
 
   it('Busca um produto na api Cosmos pelo código', async ()=> {
     const result = await cosmosService.geBytLins(PRODUCT_EXPECT.codigoProduto).catch((erro)=> erro);
-    assert.deepEqual(result, PRODUCT_EXPECT);
+    assert.deepEqual({ ...result, atualizadoEm: '' }, PRODUCT_EXPECT);
   });
 
   it('Busca uma lista na api Cosmos pela descrição', async ()=> {

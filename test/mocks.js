@@ -76,7 +76,10 @@ const PRODUCT_EXPECT = {
   imagemProduto: 'https://cdn-cosmos.bluesoft.com.br/products/7891910000197',
   precoMedioNacional: 5.99,
   detalheProduto: 'Açúcares e produtos de confeitaria - Açúcares de cana ou de beterraba e sacarose quimicamente pura, no estado sólido. - Outros: - Outros',
+  categoriaProduto: 'Açúcar / Substitutos do Açúcar (Não perecível)',
+  marcaProduto: 'UNIAO',
   origem: 'COSMOS',
+  atualizadoEm: '',
 };
 
 const PRODUCT_LIST = {
@@ -109,11 +112,13 @@ const PRODUCT_NOT_FOUND = {
 const PRODUCT_EXPECT_GOOGLE = {
   id: 0,
   barcodeProduto: 'https://api.cosmos.bluesoft.com.br/products/barcode/D215D0FAC1ACAEF6B65EE7ED9820DD38.png',
-  codigoProduto: 7891910000197,
+  codigoProduto: '7891910000197',
   descricaoProduto: 'AÇÚCAR REFINADO UNIÃO 1KGS',
   imagemProduto: 'https://cdn-cosmos.bluesoft.com.br/products/7891910000197',
-  precoMedioNacional: 5.99,
+  precoMedioNacional: '5.99',
   detalheProduto: 'Açúcares e produtos de confeitaria - Açúcares de cana ou de beterraba e sacarose quimicamente pura, no estado sólido. - Outros: - Outros',
+  categoriaProduto: 'Açúcar / Substitutos do Açúcar (Não perecível)',
+  marcaProduto: 'UNIAO',
   origem: 'GOOGLESPREADSHEET',
 };
 

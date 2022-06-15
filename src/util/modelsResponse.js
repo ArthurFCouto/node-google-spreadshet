@@ -17,9 +17,14 @@ function modelResponseProduct(product, model) {
       thumbnail: thumbnailProduto,
       ncm,
       origin: origem,
+      brand,
+      gpc,
+      updated_at,
     } = product;
     const imagemProduto = thumbnailProduto || cosmos.urlDefault.imagem;
     const detalheProduto = ncm ? ncm.full_description : '';
+    const marcaProduto = brand ? brand.name : '';
+    const categoriaProduto = gpc ? gpc.description : '';
     return {
       id: 0,
       descricaoProduto,
@@ -27,7 +32,10 @@ function modelResponseProduct(product, model) {
       imagemProduto,
       detalheProduto,
       precoMedioNacional,
+      marcaProduto,
+      categoriaProduto,
       codigoProduto,
+      atualizadoEm: updated_at,
       origem,
     };
   }
@@ -38,6 +46,8 @@ function modelResponseProduct(product, model) {
     detalhe_produto: detalheProduto,
     preco_medio_nacional: precoMedioNacional,
     codigo_produto: codigoProduto,
+    marca_produto: marcaProduto,
+    categoria_produto: categoriaProduto,
     _createdAt: criadoEm,
     _updatedAt: atualizadoEm,
   } = product;
@@ -49,7 +59,10 @@ function modelResponseProduct(product, model) {
     imagemProduto,
     detalheProduto,
     precoMedioNacional: parseFloat(precoMedioNacional.replace(',', '.')).toFixed(2),
+    marcaProduto,
+    categoriaProduto,
     codigoProduto,
+    atualizadoEm,
     origem: 'GOOGLESPREADSHEET',
   };
 }

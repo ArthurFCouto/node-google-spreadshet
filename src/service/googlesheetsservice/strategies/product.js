@@ -89,6 +89,8 @@ class ProductStrategy extends CustomInterface {
         imagem_produto: data.imagemProduto,
         detalhe_produto: data.detalheProduto,
         preco_medio_nacional: data.precoMedioNacional || '0.00',
+        marca_produto: data.marcaProduto,
+        categoria_produto: data.categoriaProduto,
         codigo_produto: data.codigoProduto,
         _createdAt: new Date().toLocaleString('pt-BR', { timeZone: 'UTC' }),
         _updatedAt: new Date().toLocaleString('pt-BR', { timeZone: 'UTC' }),

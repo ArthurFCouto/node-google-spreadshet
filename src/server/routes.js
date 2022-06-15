@@ -9,13 +9,13 @@ async function routes(request, response) {
   routesCustom.jsonContentType();
   routesCustom.use(handleCors);
   routesCustom.get('/api/v1/', controller.getLogo);
-  routesCustom.get('/api/v1/produtos', productController.getData);
-  routesCustom.get('/api/v1/produtos/buscar', productController.getByDescription);
+  routesCustom.get('/api/v1/produto', productController.getData);
+  routesCustom.get('/api/v1/produto/buscar', productController.getByDescription);
   /*
     \\d+ <= Definindo que serão aceitos apenas números para o path especificado
   */
-  routesCustom.get('/api/v1/produtos/:id(\\d+)', productController.getById);
-  routesCustom.delete('/api/v1/produtos/:id(\\d+)', productController.deleteProduct);
+  routesCustom.get('/api/v1/produto/:id(\\d+)', productController.getById);
+  routesCustom.delete('/api/v1/produto/:id(\\d+)', productController.deleteProduct);
   routesCustom.use(handleRouteNotFound);
 }
 
