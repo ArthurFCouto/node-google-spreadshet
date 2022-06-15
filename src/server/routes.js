@@ -1,24 +1,21 @@
 const controller = require('../controller');
-const produtosjsoncontroller = require('../controller/produtosjsoncontroller');
-const varejocontroller = require('../controller/varejocontroller');
+const productController = require('../controller/productController');
 const { handleCors, handleRouteNotFound } = require('../middlewares');
 const useRouter = require('../hooks/routes');
+const customError = require('../util/error');
 
 async function routes(request, response) {
   const routesCustom = useRouter(request, response);
   routesCustom.jsonContentType();
   routesCustom.use(handleCors);
   routesCustom.get('/api/v1/', controller.getLogo);
-  routesCustom.get('/api/v1/produtosjson', produtosjsoncontroller.getData);
-  routesCustom.get('/api/v1/produtosjson/:id', produtosjsoncontroller.getById);
-  routesCustom.get('/api/v1/produtosjson/image/:name', produtosjsoncontroller.getImage);
-  routesCustom.get('/api/v1/varejo', varejocontroller.getData);
-  routesCustom.get('/api/v1/varejo/buscar', varejocontroller.getByDescription);
+  routesCustom.get('/api/v1/produtos', productController.getData);
+  routesCustom.get('/api/v1/produtos/buscar', productController.getByDescription);
   /*
     \\d+ <= Definindo que serão aceitos apenas números para o path especificado
   */
-  routesCustom.get('/api/v1/varejo/:id(\\d+)', varejocontroller.getById);
-  routesCustom.delete('/api/v1/varejo/:id(\\d+)', varejocontroller.deleteProduct);
+  routesCustom.get('/api/v1/produtos/:id(\\d+)', productController.getById);
+  routesCustom.delete('/api/v1/produtos/:id(\\d+)', productController.deleteProduct);
   routesCustom.use(handleRouteNotFound);
 }
 
@@ -29,8 +26,7 @@ function handleError(error, response) {
   return response.end(JSON.stringify({
     error: 'Erro interno no servidor, tente mais tarde',
     details: {
-      status: 500,
-      statusText: 'Internal server error',
+      ...customError[500],
       data: error,
     },
   }));

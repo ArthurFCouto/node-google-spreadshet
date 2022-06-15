@@ -61,7 +61,7 @@ const USER_LIST = [
 
 const USER_NOT_FOUND = {
   details: {
-    data: 'Usuário não encontrado',
+    data: 'O recurso solicitado não existe',
     status: 404,
     statusText: 'Not found',
   },

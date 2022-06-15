@@ -8,23 +8,11 @@
 
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const ws = require('../../../../worksheet.json');
+const customError = require('../../../util/error');
 const { modelResponseUser, modelResponseError } = require('../../../util/modelsResponse');
 const customInterface = require('./base/interface');
 
 require('dotenv').config();
-
-const handleError = {
-  401: {
-    status: 401,
-    statusText: 'Bad request',
-    data: 'Já existe um usuário cadastrado com este e-mail',
-  },
-  404: {
-    status: 404,
-    statusText: 'Not found',
-    data: 'Usuário não encontrado',
-  },
-};
 
 class userStrategies extends customInterface {
   constructor() {
@@ -157,10 +145,10 @@ class userStrategies extends customInterface {
     try {
       const validate = this._validateUser(data);
       if (validate.length > 0) {
-        return modelResponseError('Erro ao criar usuário', { ...handleError[401], data: validate });
+        return modelResponseError('Erro ao criar usuário', { ...customError[401], data: validate });
       }
       if (await this._checkExist(data.email_usuario)) {
-        return modelResponseError('Email já cadastrado', handleError[401]);
+        return modelResponseError('Email já cadastrado', customError[401]);
       }
       const sheet = await this._getSheet();
       return sheet.addRow({
@@ -188,7 +176,7 @@ class userStrategies extends customInterface {
       if (user) {
         return modelResponseUser(user);
       }
-      return modelResponseError('Erro ao buscar usuário', handleError[404]);
+      return modelResponseError('Erro ao buscar usuário', customError[404]);
     } catch {
       return modelResponseError('Erro ao buscar usuário pelo ID', this._error);
     }
@@ -206,9 +194,9 @@ class userStrategies extends customInterface {
           await user.save();
           return modelResponseUser(user);
         }
-        return modelResponseError('Erro ao atualizar usuário', handleError[404]);
+        return modelResponseError('Erro ao atualizar usuário', customError[404]);
       }
-      return modelResponseError('Erro ao atualizar usuário', { ...handleError[401], data: 'Favor enviar o id e os dados corretamente' });
+      return modelResponseError('Erro ao atualizar usuário', { ...customError[401], data: 'Favor enviar o id e os dados corretamente' });
     } catch {
       return modelResponseError('Erro ao atualizar usuário pelo ID', this._error);
     }
@@ -222,7 +210,7 @@ class userStrategies extends customInterface {
         await user.del();
         return response;
       }
-      return modelResponseError('Erro ao deletar usuário', handleError[404]);
+      return modelResponseError('Erro ao deletar usuário', customError[404]);
     } catch {
       return modelResponseError('Erro ao deletar usuário pelo ID', this._error);
     }

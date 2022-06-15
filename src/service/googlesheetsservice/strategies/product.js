@@ -6,21 +6,9 @@ const { GoogleSpreadsheet } = require('google-spreadsheet');
 const ws = require('../../../../worksheet.json');
 const CustomInterface = require('./base/interface');
 const { stringIncludes } = require('../../../util');
+const customError = require('../../../util/error');
 const { modelResponseError, modelResponseProduct } = require('../../../util/modelsResponse');
 require('dotenv').config();
-
-const handleError = {
-  401: {
-    status: 401,
-    statusText: 'Bad request',
-    data: 'Produto já cadastrado',
-  },
-  404: {
-    status: 404,
-    statusText: 'Not found',
-    data: 'Produto não encontrado',
-  },
-};
 
 class ProductStrategy extends CustomInterface {
   constructor() {
@@ -92,7 +80,7 @@ class ProductStrategy extends CustomInterface {
   async create(data) {
     try {
       if (await this._checkExist(data.codigoProduto)) {
-        return modelResponseError('Ops! Este produto já cadastrado', handleError[401]);
+        return modelResponseError('Ops! Este produto já cadastrado', customError[401]);
       }
       const sheet = await this._getSheet();
       return sheet.addRow({
@@ -122,7 +110,7 @@ class ProductStrategy extends CustomInterface {
       if (product) {
         return modelResponseProduct(product);
       }
-      return modelResponseError(`O produto com código ${id} não está cadastrado`, handleError[404]);
+      return modelResponseError(`O produto com código ${id} não está cadastrado`, customError[404]);
     } catch {
       return modelResponseError('Ops! Ocorreu um erro durante a pesquisa', this._error);
     }
@@ -152,7 +140,7 @@ class ProductStrategy extends CustomInterface {
         await produto.del();
         return modelResponseProduct(response);
       }
-      return modelResponseError(`O produto de código ${id} não está cadastrado`, handleError[404]);
+      return modelResponseError(`O produto de código ${id} não está cadastrado`, customError[404]);
     } catch {
       return modelResponseError('Ops! Ocorreu um erro durante a exclusão do produto', this._error);
     }

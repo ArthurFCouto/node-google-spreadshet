@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { modelResponseError } = require('../util/modelsResponse');
-const { createError } = require('../util/errors');
+const customError = require('../util/error');
 
 class Controller {
   async getLogo(request, response) {
@@ -19,7 +19,7 @@ class Controller {
       });
       return response.end(image);
     } catch {
-      const error = await modelResponseError('Erro durante o carregamento da imagem', createError('Não foi possível encontrar a imagem', 404)).catch((data)=> data);
+      const error = await modelResponseError('Erro durante o carregamento da imagem', customError[404]).catch((data)=> data);
       response.writeHead(error.details.status);
       return response.end(JSON.stringify(error));
     }

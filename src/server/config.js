@@ -6,7 +6,4 @@ module.exports = {
       imagem: 'https://cosmos.bluesoft.com.br/assets/product-placeholder-ce4926921923d1e9bc66cd0e1493b49b.png',
     },
   },
-  produtosJson: {
-    urlImage: '/api/v1/produtosjson/image/',
-  },
 };

@@ -1,4 +1,4 @@
 const { createServer } = require('http');
-const handler = require('./routes');
+const handlerRoutes = require('./routes');
 
-module.exports = createServer(handler);
+module.exports = createServer(handlerRoutes);

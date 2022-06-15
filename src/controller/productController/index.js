@@ -2,8 +2,9 @@
 /* eslint-disable class-methods-use-this */
 const cosmosService = require('../../service/cosmosservice');
 const { Context, Product } = require('../../service/googlesheetsservice');
+const customError = require('../../util/error');
 
-class CosmosController {
+class ProductController {
   async getData(request, response) {
     const context = new Context(new Product());
     const data = await context.getAll().catch((error)=> error);
@@ -31,11 +32,7 @@ class CosmosController {
     response.writeHead(401);
     return response.end(JSON.stringify({
       error: 'Erro no envio dos parâmetros',
-      details: {
-        status: '401',
-        statusText: 'Bad request',
-        data: 'Favor verificar os parâmetros description e mode',
-      },
+      details: customError[401],
     }));
   }
 
@@ -50,7 +47,9 @@ class CosmosController {
     if (data.error) {
       response.writeHead(data.details.status);
     } else {
-      // Não foi utilizado o await pois não é necessário aguardar o cadastro para enviar a resposta ao usuário
+      /*
+        Não foi utilizado o await pois não é necessário aguardar o cadastro para enviar a resposta ao usuário
+      */
       context.create(data).then((product)=> console.log('Cadastro no GoogleSheets: OK', product)).catch((error)=> console.log('Cadastro no GoogleSheet: Fail', JSON.stringify(error)));
     }
     return response.end(JSON.stringify(data));
@@ -71,18 +70,16 @@ class CosmosController {
     response.writeHead(401);
     return response.end(JSON.stringify({
       error: 'Erro no envio dos parâmetros',
-      details: {
-        status: '401',
-        statusText: 'Bad request',
-        data: 'Favor verificar o parâmetro url',
-      },
+      details: customError[401],
     }));
   }
 
   async deleteProduct(request, response) {
     const context = new Context(new Product());
     const { id } = request.path;
-    // Além de verificar se o parâmetro foi enviado, é verificado se o mesmo é um número
+    /*
+      Além de verificar se o parâmetro foi enviado, é verificado se o mesmo é um número
+    */
     if (id && (!isNaN(id))) {
       const data = await context.delete(id).catch((error)=> error);
       if (data.error) {
@@ -94,12 +91,11 @@ class CosmosController {
     return response.end(JSON.stringify({
       error: 'Erro no envio dos parâmetros',
       details: {
-        status: '401',
-        statusText: 'Bad request',
+        ...customError[401],
         data: 'Enviar um ID válido',
       },
     }));
   }
 }
 
-module.exports = new CosmosController();
+module.exports = new ProductController();
