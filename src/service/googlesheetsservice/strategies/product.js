@@ -114,7 +114,7 @@ class ProductStrategy extends CustomInterface {
       }
       return modelResponseError(`O produto com código ${id} não está cadastrado`, customError[404]);
     } catch {
-      return modelResponseError('Ops! Ocorreu um erro durante a pesquisa', this._error);
+      return modelResponseError('Ops! Ocorreu um erro durante a pesquisa', customError[500]);
     }
   }
 
@@ -130,7 +130,7 @@ class ProductStrategy extends CustomInterface {
       });
       return modelResponseProduct(product);
     } catch {
-      return modelResponseError('Ops! Ocorreu um erro durante a pesquisa', this._error);
+      return modelResponseError('Ops! Ocorreu um erro durante a pesquisa', customError[500]);
     }
   }
 
@@ -144,7 +144,7 @@ class ProductStrategy extends CustomInterface {
       }
       return modelResponseError(`O produto de código ${id} não está cadastrado`, customError[404]);
     } catch {
-      return modelResponseError('Ops! Ocorreu um erro durante a exclusão do produto', this._error);
+      return modelResponseError('Ops! Ocorreu um erro durante a exclusão do produto', customError[500]);
     }
   }
 }

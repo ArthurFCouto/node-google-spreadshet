@@ -87,46 +87,46 @@ class userStrategies extends customInterface {
   _validateUser(user) {
     const error = [];
     const {
-      nome_usuario, email_usuario, senha_usuario, telefone_usuario,
+      nomeUsuario, emailUsuario, senhaUsuario, telefoneUsuario,
     } = user;
-    if (!nome_usuario || nome_usuario.replace(/\s/g, '').length === 0) {
+    if (!nomeUsuario || nomeUsuario.replace(/\s/g, '').length === 0) {
       error.push({
         field: 'NOME',
         error: 'Campo não enviado ou vazio',
-        value: nome_usuario || '',
+        value: nomeUsuario || '',
       });
     }
-    if (!senha_usuario || senha_usuario.replace(/\s/g, '').length === 0) {
+    if (!senhaUsuario || senhaUsuario.replace(/\s/g, '').length === 0) {
       error.push({
         field: 'SENHA',
         error: 'Campo não enviado ou vazio',
-        value: senha_usuario || '',
+        value: senhaUsuario || '',
       });
-    } else if (senha_usuario.length < 8 || senha_usuario.length > 12) {
+    } else if (senhaUsuario.length < 8 || senhaUsuario.length > 12) {
       error.push({
         field: 'SENHA',
         error: 'A senha deve ter de 8 a 12 caracteres',
-        value: senha_usuario || '',
+        value: senhaUsuario || '',
       });
     }
     /*
       Validando o formato de email através de regex
     */
-    if (!email_usuario || !(/^[\w+.]+@\w+\.\w{2,}(?:\.\w{2})?$/.test(email_usuario))) {
+    if (!emailUsuario || !(/^[\w+.]+@\w+\.\w{2,}(?:\.\w{2})?$/.test(emailUsuario))) {
       error.push({
         field: 'EMAIL',
         error: 'Campo não enviado ou com formato inválido',
-        value: email_usuario || '',
+        value: emailUsuario || '',
       });
     }
     /*
       Validanto que o telefone será de apenas 11 numeros, com regex
     */
-    if (!telefone_usuario || !(/\d{11}/.test(telefone_usuario))) {
+    if (!telefoneUsuario || !(/\d{11}/.test(telefoneUsuario))) {
       error.push({
         field: 'TELEFONE',
         error: 'Campo não enviado ou com formato inválido',
-        value: telefone_usuario || '',
+        value: telefoneUsuario || '',
       });
     }
     return error;
@@ -147,22 +147,23 @@ class userStrategies extends customInterface {
       if (validate.length > 0) {
         return modelResponseError('Erro ao criar usuário', { ...customError[401], data: validate });
       }
-      if (await this._checkExist(data.email_usuario)) {
+      if (await this._checkExist(data.emailUsuario)) {
         return modelResponseError('Email já cadastrado', customError[401]);
       }
       const sheet = await this._getSheet();
       return sheet.addRow({
-        nome_usuario: data.nome_usuario,
-        email_usuario: data.email_usuario,
-        telefone_usuario: data.telefone_usuario,
-        senha_usuario: data.senha_usuario,
-        imagem_usuario: data.imagem_usuario || '',
+        nome_usuario: data.nomeUsuario,
+        email_usuario: data.emailUsuario,
+        telefone_usuario: data.telefoneUsuario,
+        senha_usuario: data.senhaUsuario,
+        imagem_usuario: data.imagemUsuario || '',
         _createdAt: new Date().toLocaleString('pt-BR', { timeZone: 'UTC' }),
         _updatedAt: new Date().toLocaleString('pt-BR', { timeZone: 'UTC' }),
       })
         .then((res)=> modelResponseUser(res))
         .catch((error)=> {
           console.log('Houve um erro ao criar usuário', error);
+          this._error = error;
           throw new Error();
         });
     } catch {
@@ -178,7 +179,7 @@ class userStrategies extends customInterface {
       }
       return modelResponseError('Erro ao buscar usuário', customError[404]);
     } catch {
-      return modelResponseError('Erro ao buscar usuário pelo ID', this._error);
+      return modelResponseError('Erro ao buscar usuário pelo ID', customError[500]);
     }
   }
 
@@ -187,9 +188,9 @@ class userStrategies extends customInterface {
       if (id && data) {
         const user = await this._checkExist(id);
         if (user) {
-          user.nome_usuario = user.nome_usuario !== data.nome_usuario ? data.nome_usuario : user.nome_usuario;
-          user.imagem_usuario = user.imagem_usuario !== data.imagem_usuario ? data.imagem_usuario : user.imagem_usuario;
-          user.telefone_usuario = user.telefone_usuario !== data.telefone_usuario ? data.telefone_usuario : user.telefone_usuario;
+          user.nome_usuario = user.nome_usuario !== data.nomeUsuario ? data.nomeUsuario : user.nome_usuario;
+          user.imagem_usuario = user.imagem_usuario !== data.imagemUsuario ? data.imagemUsuario : user.imagem_usuario;
+          user.telefone_usuario = user.telefone_usuario !== data.telefoneUsuario ? data.telefoneUsuario : user.telefone_usuario;
           user._updatedAt = new Date().toLocaleString('pt-BR', { timeZone: 'UTC' });
           await user.save();
           return modelResponseUser(user);
@@ -198,7 +199,7 @@ class userStrategies extends customInterface {
       }
       return modelResponseError('Erro ao atualizar usuário', { ...customError[401], data: 'Favor enviar o id e os dados corretamente' });
     } catch {
-      return modelResponseError('Erro ao atualizar usuário pelo ID', this._error);
+      return modelResponseError('Erro ao atualizar usuário pelo ID', customError[500]);
     }
   }
 
@@ -212,7 +213,7 @@ class userStrategies extends customInterface {
       }
       return modelResponseError('Erro ao deletar usuário', customError[404]);
     } catch {
-      return modelResponseError('Erro ao deletar usuário pelo ID', this._error);
+      return modelResponseError('Erro ao deletar usuário pelo ID', customError[500]);
     }
   }
 }

@@ -1,61 +1,61 @@
 const USER = {
-  nome_usuario: 'Ingride Barbosa',
-  email_usuario: 'ingride@gmail.com',
-  telefone_usuario: '38999731482',
-  senha_usuario: '12345678',
-  imagem_usuario: '',
+  nomeUsuario: 'Ingride Barbosa',
+  emailUsuario: 'ingride@gmail.com',
+  telefoneUsuario: '38999731482',
+  senhaUsuario: '12345678',
+  imagemUsuario: '',
 };
 
 const USER_EXPECTED = {
   id: 0,
-  nome_usuario: 'Ingride Barbosa',
-  email_usuario: 'ingride@gmail.com',
-  telefone_usuario: '38999731482',
-  senha_usuario: '********',
-  imagem_usuario: '',
+  nomeUsuario: 'Ingride Barbosa',
+  emailUsuario: 'ingride@gmail.com',
+  telefoneUsuario: '38999731482',
+  senhaUsuario: '********',
+  imagemUsuario: '',
 };
 
 const USER_FOR_UPDATE = {
-  nome_usuario: 'Ingride',
-  email_usuario: 'ingridebarbosa@gmail.com',
-  telefone_usuario: '38998628103',
-  senha_usuario: '87654321',
-  imagem_usuario: 'https://source.unsplash.com/640x640/?user',
+  nomeUsuario: 'Ingride',
+  emailUsuario: 'ingridebarbosa@gmail.com',
+  telefoneUsuario: '38998628103',
+  senhaUsuario: '87654321',
+  imagemUsuario: 'https://source.unsplash.com/640x640/?user',
 };
 
 const USER_AFTER_UPDATE = {
   id: 0,
-  nome_usuario: 'Ingride',
-  email_usuario: 'ingride@gmail.com',
-  telefone_usuario: '38998628103',
-  senha_usuario: '********',
-  imagem_usuario: 'https://source.unsplash.com/640x640/?user',
+  nomeUsuario: 'Ingride',
+  emailUsuario: 'ingride@gmail.com',
+  telefoneUsuario: '38998628103',
+  senhaUsuario: '********',
+  imagemUsuario: 'https://source.unsplash.com/640x640/?user',
 };
 
 const USER_LIST = [
   {
     id: 0,
-    nome_usuario: 'Arthur',
-    email_usuario: 'arthur@gmail.com',
-    telefone_usuario: '38999414205',
-    senha_usuario: '********',
-    imagem_usuario: 'https://source.unsplash.com/640x640/?user',
+    nomeUsuario: 'Arthur',
+    emailUsuario: 'arthur@gmail.com',
+    telefoneUsuario: '38999414205',
+    senhaUsuario: '********',
+    imagemUsuario: 'https://source.unsplash.com/640x640/?user',
   },
   {
     id: 0,
-    nome_usuario: 'Mariah',
-    email_usuario: 'mariah@gmail.com',
-    telefone_usuario: '38998628103',
-    senha_usuario: '********',
-    imagem_usuario: 'https://source.unsplash.com/640x640/?user',
+    nomeUsuario: 'Mariah',
+    emailUsuario: 'mariah@gmail.com',
+    telefoneUsuario: '38998628103',
+    senhaUsuario: '********',
+    imagemUsuario: 'https://source.unsplash.com/640x640/?user',
   },
   {
     id: 0,
-    nome_usuario: 'Ingride',
-    email_usuario: 'ingride@gmail.com',
-    telefone_usuario: '38998628103',
-    senha_usuario: '********',
-    imagem_usuario: 'https://source.unsplash.com/640x640/?user',
+    nomeUsuario: 'Ingride',
+    emailUsuario: 'ingride@gmail.com',
+    telefoneUsuario: '38998628103',
+    senhaUsuario: '********',
+    imagemUsuario: 'https://source.unsplash.com/640x640/?user',
   },
 ];
 
@@ -131,6 +131,61 @@ const PRODUTCT_LIST_GOOGLE = {
   listaProduto: [],
 };
 
+const PRICE_ACTUAL = {
+  codigoProduto: '7891024134702',
+  emailUsuario: 'arthur@gmail.com',
+  precoAtual: 4.49,
+  cnpjMercado: '06981180000116',
+  atualizadoEm: '',
+};
+
+const PRICE_ACTUAL_EXPECTED = {
+  codigoProduto: '7891024134702',
+  emailUsuario: 'arthur@gmail.com',
+  precoAtual: '4.49',
+  cnpjMercado: '06981180000116',
+  atualizadoEm: '',
+};
+
+const PRICE_ACTUAL_ALL = [{
+  7891024134702: [{ ...PRICE_ACTUAL_EXPECTED }],
+}];
+
+const PRICE_NOT_FOUND = {
+  details: {
+    data: 'O recurso solicitado não existe',
+    status: 404,
+    statusText: 'Not found',
+  },
+  error: 'Ainda não há preços atuais cadastrados para o produto com código 7896080900827',
+};
+
+const MARKET = {
+  nomeMercado: 'CEMIG MG',
+  cnpjMercado: '06981180000116',
+  enderecoMercado: 'Avenida Barbacena',
+  numeroMercado: '1200',
+  complementoMercado: '17º Andar Ala A1',
+  cidadeMercado: 'Belo Horizonte - MG',
+  cepMercado: '30190131',
+  telefoneMercado: '38999999999',
+};
+
+const MARKET_EXPECTED = {
+  id: 0,
+  nomeMercado: 'CEMIG MG',
+  cnpjMercado: '06981180000116',
+  enderecoMercado: 'Avenida Barbacena 1200 17º Andar Ala A1',
+  cidadeMercado: 'Belo Horizonte - MG',
+  cepMercado: '30190131',
+  telefoneMercado: '38999999999',
+  atualizadoEm: '',
+};
+
+const MARKET_LIST_EXPECTED = [
+  MARKET_EXPECTED,
+];
+
 module.exports = {
   USER,
   USER_EXPECTED,
@@ -144,4 +199,11 @@ module.exports = {
   PRODUCT_NOT_FOUND,
   PRODUCT_EXPECT_GOOGLE,
   PRODUTCT_LIST_GOOGLE,
+  PRICE_ACTUAL,
+  PRICE_ACTUAL_EXPECTED,
+  PRICE_ACTUAL_ALL,
+  PRICE_NOT_FOUND,
+  MARKET,
+  MARKET_LIST_EXPECTED,
+  MARKET_EXPECTED,
 };

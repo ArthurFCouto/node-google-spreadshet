@@ -1,0 +1,173 @@
+/* eslint-disable linebreak-style */
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable class-methods-use-this */
+/* eslint-disable no-plusplus */
+const { GoogleSpreadsheet } = require('google-spreadsheet');
+const ws = require('../../../../worksheet.json');
+const CustomInterface = require('./base/interface');
+const customError = require('../../../util/error');
+const { modelResponseError, modelResponsePrice } = require('../../../util/modelsResponse');
+const Market = require('./market');
+const User = require('./user');
+
+require('dotenv').config();
+
+class PriceStrategy extends CustomInterface {
+  constructor() {
+    super();
+    this._index = 2;
+    this._error = null;
+  }
+
+  async _getDocument() {
+    try {
+      const document = new GoogleSpreadsheet(ws.id);
+      await document.useServiceAccountAuth({
+        client_email: process.env.CLIENT_EMAIL,
+        private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
+      });
+      await document.loadInfo();
+      return document;
+    } catch (error) {
+      console.error('Erro ao conectar com servidor GoogleSpreadsheet', error);
+      this._error = error;
+      throw new Error();
+    }
+  }
+
+  async _getRows() {
+    try {
+      return this._getDocument().then(async (response)=> {
+        const sheet = response.sheetsByIndex[this._index];
+        return sheet.getRows().then((rows)=> rows);
+      });
+    } catch (error) {
+      console.error('Erro ao recuperar as linhas da planilha', error);
+      this._error = error;
+      throw new Error();
+    }
+  }
+
+  async _getSheet() {
+    try {
+      return this._getDocument().then(async (response)=> response.sheetsByIndex[this._index]);
+    } catch (error) {
+      console.error('Erro ao recuperar a planilha', error);
+      this._error = error;
+      throw new Error();
+    }
+  }
+
+  async _searchForExisting(code) {
+    const prices = [];
+    const rows = await this._getRows();
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i].codigo_produto.toString() === code.toString()) {
+        prices.push(rows[i]);
+      }
+    }
+    return prices;
+  }
+
+  async _validatePrice(data) {
+    const error = [];
+    const contextMarket = new Market();
+    const contextUser = new User();
+    const user = await contextUser.getById(data.emailUsuario).catch((erro)=> erro);
+    if (user.id !== 0) {
+      error.push(user);
+    }
+    const market = await contextMarket.getById(data.cnpjMercado).catch((erro)=> erro);
+    if (market.id !== 0) {
+      error.push(market);
+    }
+    return error;
+  }
+
+  async getAll() {
+    try {
+      const rows = await this._getRows();
+      return modelResponsePrice(rows);
+    } catch {
+      return modelResponseError('Ops! Ocorreu um erro durante a pesquisa', this._error);
+    }
+  }
+
+  async create(data) {
+    try {
+      let response;
+      const validate = await this._validatePrice(data);
+      if (validate.length > 0) {
+        return modelResponseError('Erro ao cadastrar preço', { ...customError[401], data: validate });
+      }
+      const list = await this._searchForExisting(data.codigoProduto);
+      if (list.length > 0) {
+        for (let i = 0; i < list.length; i++) {
+          if (list[i].cnpj_mercado.toString() === data.cnpjMercado) {
+            list[i].preco_produto = data.precoAtual;
+            list[i].email_usuario = data.emailUsuario;
+            list[i]._updatedAt = new Date().toLocaleString('pt-BR', { timeZone: 'UTC' });
+            await list[i].save();
+            response = list[i];
+            break;
+          }
+        }
+      }
+      if (response) {
+        return modelResponsePrice(response);
+      }
+      const sheet = await this._getSheet();
+      await sheet.addRow({
+        codigo_produto: data.codigoProduto,
+        preco_produto: data.precoProduto,
+        email_usuario: data.emailUsuario,
+        cnpj_mercado: data.cnpjMercado,
+        _createdAt: new Date().toLocaleString('pt-BR', { timeZone: 'UTC' }),
+        _updatedAt: new Date().toLocaleString('pt-BR', { timeZone: 'UTC' }),
+      })
+        .then((res)=> {
+          response = res;
+        })
+        .catch((error)=> {
+          console.error('Erro ao cadastrar o preco atual na planilha', error);
+          this._error = error;
+          throw new Error();
+        });
+      return modelResponsePrice(response);
+    } catch {
+      return modelResponseError('Ops! Ocorreu um erro durante o cadastro do produto', this._error);
+    }
+  }
+
+  async getById(id) {
+    try {
+      const list = await this._searchForExisting(id);
+      if (list.length > 0) {
+        return modelResponsePrice(list);
+      }
+      return modelResponseError(`Ainda não há preços atuais cadastrados para o produto com código ${id}`, customError[404]);
+    } catch {
+      return modelResponseError('Ops! Ocorreu um erro durante a pesquisa', customError[500]);
+    }
+  }
+
+  async delete(id) {
+    try {
+      const list = await this._searchForExisting(id);
+      if (list.length > 0) {
+        list.map(async (row)=> { await row.del(); });
+        const newlist = await this._searchForExisting(id);
+        if (newlist.length > 0) {
+          return this.delete(id);
+        }
+        return modelResponsePrice(list);
+      }
+      return modelResponseError(`Ainda não há preços atuais cadastrados para o produto com código ${id}`, customError[404]);
+    } catch {
+      return modelResponseError('Ops! Ocorreu um erro durante a exclusão do produto', customError[500]);
+    }
+  }
+}
+
+module.exports = PriceStrategy;

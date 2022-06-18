@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-use-before-define */
 /* eslint-disable no-unused-vars */
@@ -100,28 +101,91 @@ function modelResponseProductList(data, model) {
 
 function modelResponseUser(user) {
   const {
-    email_usuario,
-    nome_usuario,
-    imagem_usuario,
-    senha_usuario,
-    telefone_usuario,
+    email_usuario: emailUsuario,
+    nome_usuario: nomeUsuario,
+    imagem_usuario: imagemUsuario,
+    senha_usuario: senhaUsuario,
+    telefone_usuario: telefoneUsuario,
   } = user;
   return {
     id: 0,
-    email_usuario,
-    nome_usuario,
-    imagem_usuario,
-    senha_usuario: '********',
-    telefone_usuario,
+    emailUsuario,
+    nomeUsuario,
+    imagemUsuario,
+    senhaUsuario: '********',
+    telefoneUsuario,
   };
+}
+
+function modelResponseMarket(market) {
+  const {
+    cnpj_mercado: cnpjMercado,
+    nome_mercado: nomeMercado,
+    endereco_mercado: enderecoMercado,
+    numero_mercado: numeroMercado,
+    complemento_mercado: complementoMercado,
+    telefone_mercado: telefoneMercado,
+    cidade_mercado: cidadeMercado,
+    cep_mercado: cepMercado,
+    _updatedAt: atualizadoEm,
+  } = market;
+  return {
+    id: 0,
+    cnpjMercado,
+    nomeMercado,
+    enderecoMercado: `${`${enderecoMercado} `}${`${numeroMercado} `}${complementoMercado}`,
+    cidadeMercado,
+    cepMercado,
+    telefoneMercado,
+    atualizadoEm,
+  };
+}
+
+function modelResponsePrice(data) {
+  if (data && Array.isArray(data)) {
+    return modelResponsePriceList(data);
+  }
+  const {
+    codigo_produto, preco_produto, email_usuario, cnpj_mercado, _updatedAt,
+  } = data;
+  return {
+    codigoProduto: codigo_produto,
+    precoAtual: parseFloat(preco_produto.replace(',', '.')).toFixed(2),
+    cnpjMercado: cnpj_mercado.toString(),
+    emailUsuario: email_usuario,
+    atualizadoEm: _updatedAt,
+  };
+}
+
+function modelResponsePriceList(data) {
+  const codes = [...new Set(data.map((price)=> price.codigo_produto))];
+  const listPrices = [];
+  for (let i = 0; i < codes.length; i++) {
+    const code = codes[i];
+    const list = JSON.stringify(data.filter((price)=> price.codigo_produto === code).map((price)=> modelResponsePrice(price)));
+    const index = JSON.parse(`{"${code}": ${list}}`);
+    listPrices.push(index);
+  }
+  return listPrices;
 }
 
 /*
   Estudar a melhor forma de melhorar este método
 */
 function modelResponseError(message, error) {
+  console.log('Error', error);
   message = message || 'Erro interno';
   let response = {};
+  if (error === null) {
+    response = {
+      error: message,
+      details: {
+        status: 500,
+        statusText: 'Internal server error',
+        data: 'Erro interno no servidor, tente mais tarde',
+      },
+    };
+  }
   if (error.response) {
     response = {
       error: message,
@@ -149,15 +213,6 @@ function modelResponseError(message, error) {
         data: error.data,
       },
     };
-  } else {
-    response = {
-      error: message,
-      details: {
-        status: 500,
-        statusText: 'Internal server error',
-        data: 'Erro interno no servidor, tente mais tarde',
-      },
-    };
   }
   return new Promise((resolve, reject)=> {
     reject(response);
@@ -165,7 +220,9 @@ function modelResponseError(message, error) {
 }
 
 module.exports = {
+  modelResponseError,
+  modelResponseMarket,
+  modelResponsePrice,
   modelResponseProduct,
   modelResponseUser,
-  modelResponseError,
 };
