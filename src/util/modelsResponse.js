@@ -173,19 +173,15 @@ function modelResponsePriceList(data) {
   Estudar a melhor forma de melhorar este método
 */
 function modelResponseError(message, error) {
-  console.log('Error', error);
   message = message || 'Erro interno';
-  let response = {};
-  if (error === null) {
-    response = {
-      error: message,
-      details: {
-        status: 500,
-        statusText: 'Internal server error',
-        data: 'Erro interno no servidor, tente mais tarde',
-      },
-    };
-  }
+  let response = {
+    error: message,
+    details: {
+      status: 500,
+      statusText: 'Internal server error',
+      data: 'Erro interno no servidor, tente mais tarde',
+    },
+  };
   if (error.response) {
     response = {
       error: message,

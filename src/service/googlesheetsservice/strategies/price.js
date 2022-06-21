@@ -1,4 +1,5 @@
 /* eslint-disable linebreak-style */
+/* eslint-disable no-restricted-globals */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
@@ -74,13 +75,38 @@ class PriceStrategy extends CustomInterface {
     const error = [];
     const contextMarket = new Market();
     const contextUser = new User();
-    const user = await contextUser.getById(data.emailUsuario).catch((erro)=> erro);
-    if (user.id !== 0) {
-      error.push(user);
+    const {
+      emailUsuario, cnpjMercado, codigoProduto, precoAtual,
+    } = data;
+    const user = emailUsuario && await contextUser.getById(emailUsuario).catch((erro)=> erro);
+    if (!user || user.id !== 0) {
+      error.push({
+        field: 'emailUsuario',
+        error: 'Erro ao buscar usuário pelo email',
+        value: emailUsuario || '',
+      });
     }
-    const market = await contextMarket.getById(data.cnpjMercado).catch((erro)=> erro);
-    if (market.id !== 0) {
-      error.push(market);
+    const market = cnpjMercado && await contextMarket.getById(cnpjMercado).catch((erro)=> erro);
+    if (!market || market.id !== 0) {
+      error.push({
+        field: 'cnpjMercado',
+        error: 'Erro ao buscar mercado pelo CNPJ',
+        value: cnpjMercado || '',
+      });
+    }
+    if (!codigoProduto) {
+      error.push({
+        field: 'codigoProduto',
+        error: 'Código do produto não enviado',
+        value: codigoProduto || '',
+      });
+    }
+    if (!precoAtual || isNaN(precoAtual)) {
+      error.push({
+        field: 'precoProduto',
+        error: 'Preço do produto não enviado ou inválido',
+        value: codigoProduto || '',
+      });
     }
     return error;
   }
@@ -120,7 +146,7 @@ class PriceStrategy extends CustomInterface {
       const sheet = await this._getSheet();
       await sheet.addRow({
         codigo_produto: data.codigoProduto,
-        preco_produto: data.precoProduto,
+        preco_produto: data.precoAtual,
         email_usuario: data.emailUsuario,
         cnpj_mercado: data.cnpjMercado,
         _createdAt: new Date().toLocaleString('pt-BR', { timeZone: 'UTC' }),
@@ -142,7 +168,7 @@ class PriceStrategy extends CustomInterface {
 
   async getById(id) {
     try {
-      const list = await this._searchForExisting(id);
+      const list = id && await this._searchForExisting(id);
       if (list.length > 0) {
         return modelResponsePrice(list);
       }
@@ -154,7 +180,7 @@ class PriceStrategy extends CustomInterface {
 
   async delete(id) {
     try {
-      const list = await this._searchForExisting(id);
+      const list = id && await this._searchForExisting(id);
       if (list.length > 0) {
         list.map(async (row)=> { await row.del(); });
         const newlist = await this._searchForExisting(id);

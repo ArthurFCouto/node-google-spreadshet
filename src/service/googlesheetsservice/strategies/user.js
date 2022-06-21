@@ -91,20 +91,20 @@ class userStrategies extends customInterface {
     } = user;
     if (!nomeUsuario || nomeUsuario.replace(/\s/g, '').length === 0) {
       error.push({
-        field: 'NOME',
+        field: 'nomeUsuario',
         error: 'Campo não enviado ou vazio',
         value: nomeUsuario || '',
       });
     }
     if (!senhaUsuario || senhaUsuario.replace(/\s/g, '').length === 0) {
       error.push({
-        field: 'SENHA',
+        field: 'senhaUsuario',
         error: 'Campo não enviado ou vazio',
         value: senhaUsuario || '',
       });
     } else if (senhaUsuario.length < 8 || senhaUsuario.length > 12) {
       error.push({
-        field: 'SENHA',
+        field: 'senhaUsuario',
         error: 'A senha deve ter de 8 a 12 caracteres',
         value: senhaUsuario || '',
       });
@@ -114,7 +114,7 @@ class userStrategies extends customInterface {
     */
     if (!emailUsuario || !(/^[\w+.]+@\w+\.\w{2,}(?:\.\w{2})?$/.test(emailUsuario))) {
       error.push({
-        field: 'EMAIL',
+        field: 'emailUsuario',
         error: 'Campo não enviado ou com formato inválido',
         value: emailUsuario || '',
       });
@@ -122,9 +122,9 @@ class userStrategies extends customInterface {
     /*
       Validanto que o telefone será de apenas 11 numeros, com regex
     */
-    if (!telefoneUsuario || !(/\d{11}/.test(telefoneUsuario))) {
+    if (!telefoneUsuario || !(/^\d{11}$/.test(telefoneUsuario))) {
       error.push({
-        field: 'TELEFONE',
+        field: 'telefoneUsuario',
         error: 'Campo não enviado ou com formato inválido',
         value: telefoneUsuario || '',
       });
@@ -173,7 +173,7 @@ class userStrategies extends customInterface {
 
   async getById(id) {
     try {
-      const user = await this._checkExist(id);
+      const user = id && await this._checkExist(id);
       if (user) {
         return modelResponseUser(user);
       }

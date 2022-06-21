@@ -1,4 +1,5 @@
 const USER = {
+  id: 0,
   nomeUsuario: 'Ingride Barbosa',
   emailUsuario: 'ingride@gmail.com',
   telefoneUsuario: '38999731482',
@@ -6,29 +7,12 @@ const USER = {
   imagemUsuario: '',
 };
 
-const USER_EXPECTED = {
-  id: 0,
-  nomeUsuario: 'Ingride Barbosa',
-  emailUsuario: 'ingride@gmail.com',
-  telefoneUsuario: '38999731482',
-  senhaUsuario: '********',
-  imagemUsuario: '',
-};
-
 const USER_FOR_UPDATE = {
+  id: 0,
   nomeUsuario: 'Ingride',
-  emailUsuario: 'ingridebarbosa@gmail.com',
+  emailUsuario: 'ingride@gmail.com',
   telefoneUsuario: '38998628103',
   senhaUsuario: '87654321',
-  imagemUsuario: 'https://source.unsplash.com/640x640/?user',
-};
-
-const USER_AFTER_UPDATE = {
-  id: 0,
-  nomeUsuario: 'Ingride',
-  emailUsuario: 'ingride@gmail.com',
-  telefoneUsuario: '38998628103',
-  senhaUsuario: '********',
   imagemUsuario: 'https://source.unsplash.com/640x640/?user',
 };
 
@@ -59,22 +43,43 @@ const USER_LIST = [
   },
 ];
 
-const USER_NOT_FOUND = {
+const USER_ERROR = {
+  error: 'Erro ao criar usuário',
   details: {
-    data: 'O recurso solicitado não existe',
-    status: 404,
-    statusText: 'Not found',
+    status: 401,
+    statusText: 'Bad request',
+    data: [
+      {
+        field: 'nomeUsuario',
+        error: 'Campo não enviado ou vazio',
+        value: '',
+      },
+      {
+        field: 'senhaUsuario',
+        error: 'Campo não enviado ou vazio',
+        value: '',
+      },
+      {
+        field: 'emailUsuario',
+        error: 'Campo não enviado ou com formato inválido',
+        value: '',
+      },
+      {
+        field: 'telefoneUsuario',
+        error: 'Campo não enviado ou com formato inválido',
+        value: '',
+      },
+    ],
   },
-  error: 'Erro ao buscar usuário',
 };
 
 const PRODUCT_EXPECT = {
   id: 0,
   barcodeProduto: 'https://api.cosmos.bluesoft.com.br/products/barcode/D215D0FAC1ACAEF6B65EE7ED9820DD38.png',
-  codigoProduto: 7891910000197,
+  codigoProduto: '7891910000197',
   descricaoProduto: 'AÇÚCAR REFINADO UNIÃO 1KGS',
   imagemProduto: 'https://cdn-cosmos.bluesoft.com.br/products/7891910000197',
-  precoMedioNacional: 5.99,
+  precoMedioNacional: '5.99',
   detalheProduto: 'Açúcares e produtos de confeitaria - Açúcares de cana ou de beterraba e sacarose quimicamente pura, no estado sólido. - Outros: - Outros',
   categoriaProduto: 'Açúcar / Substitutos do Açúcar (Não perecível)',
   marcaProduto: 'UNIAO',
@@ -91,35 +96,13 @@ const PRODUCT_LIST = {
   listaProduto: [],
 };
 
-const PRODUTCT_LIST_2 = {
+const PRODUTCT_LIST_NEXT = {
   atualPagina: 2,
   porPagina: 30,
   totalPagina: 4,
   totalProduto: 103,
   proximaPagina: 'https://api.cosmos.bluesoft.com.br/products?page=3&query=ACUCAR+REFINADO+UNIAO+1KGS',
   listaProduto: [],
-};
-
-const PRODUCT_NOT_FOUND = {
-  details: {
-    data: 'O recurso solicitado não existe',
-    status: 404,
-    statusText: 'Not Found',
-  },
-  error: 'Ops! Ocorreu um erro durante a pesquisa',
-};
-
-const PRODUCT_EXPECT_GOOGLE = {
-  id: 0,
-  barcodeProduto: 'https://api.cosmos.bluesoft.com.br/products/barcode/D215D0FAC1ACAEF6B65EE7ED9820DD38.png',
-  codigoProduto: '7891910000197',
-  descricaoProduto: 'AÇÚCAR REFINADO UNIÃO 1KGS',
-  imagemProduto: 'https://cdn-cosmos.bluesoft.com.br/products/7891910000197',
-  precoMedioNacional: '5.99',
-  detalheProduto: 'Açúcares e produtos de confeitaria - Açúcares de cana ou de beterraba e sacarose quimicamente pura, no estado sólido. - Outros: - Outros',
-  categoriaProduto: 'Açúcar / Substitutos do Açúcar (Não perecível)',
-  marcaProduto: 'UNIAO',
-  origem: 'GOOGLESPREADSHEET',
 };
 
 const PRODUTCT_LIST_GOOGLE = {
@@ -134,30 +117,39 @@ const PRODUTCT_LIST_GOOGLE = {
 const PRICE_ACTUAL = {
   codigoProduto: '7891024134702',
   emailUsuario: 'arthur@gmail.com',
-  precoAtual: 4.49,
-  cnpjMercado: '06981180000116',
-  atualizadoEm: '',
-};
-
-const PRICE_ACTUAL_EXPECTED = {
-  codigoProduto: '7891024134702',
-  emailUsuario: 'arthur@gmail.com',
   precoAtual: '4.49',
   cnpjMercado: '06981180000116',
   atualizadoEm: '',
 };
 
-const PRICE_ACTUAL_ALL = [{
-  7891024134702: [{ ...PRICE_ACTUAL_EXPECTED }],
-}];
-
-const PRICE_NOT_FOUND = {
+const PRICE_ERROR = {
   details: {
-    data: 'O recurso solicitado não existe',
-    status: 404,
-    statusText: 'Not found',
+    data: [
+      {
+        error: 'Erro ao buscar usuário pelo email',
+        field: 'emailUsuario',
+        value: '',
+      },
+      {
+        error: 'Erro ao buscar mercado pelo CNPJ',
+        field: 'cnpjMercado',
+        value: '',
+      },
+      {
+        field: 'codigoProduto',
+        error: 'Código do produto não enviado',
+        value: '',
+      },
+      {
+        field: 'precoProduto',
+        error: 'Preço do produto não enviado ou inválido',
+        value: '',
+      },
+    ],
+    status: 401,
+    statusText: 'Bad request',
   },
-  error: 'Ainda não há preços atuais cadastrados para o produto com código 7896080900827',
+  error: 'Erro ao cadastrar preço',
 };
 
 const MARKET = {
@@ -182,28 +174,63 @@ const MARKET_EXPECTED = {
   atualizadoEm: '',
 };
 
-const MARKET_LIST_EXPECTED = [
-  MARKET_EXPECTED,
-];
+const MARKET_ERROR = {
+  details: {
+    data: [
+      {
+        field: 'nomeMercado',
+        error: 'Campo não enviado ou vazio',
+        value: '',
+      },
+      {
+        field: 'cidadeMercado',
+        error: 'Campo não enviado ou vazio',
+        value: '',
+      },
+      {
+        field: 'cepMercado',
+        error: 'Campo não enviado ou com formato inválido',
+        value: '',
+      },
+      {
+        field: 'cnpjMercado',
+        error: 'Campo não enviado ou com formato inválido',
+        value: '',
+      },
+      {
+        field: 'telefoneMercado',
+        error: 'Campo não enviado ou com formato inválido',
+        value: '',
+      },
+    ],
+    status: 401,
+    statusText: 'Bad request',
+  },
+  error: 'Erro ao cadastrar mercado',
+};
+
+const NOT_FOUND = {
+  details: {
+    data: 'O recurso solicitado não existe',
+    status: 404,
+    statusText: 'Not found',
+  },
+  error: 'Erro ao buscar mercado',
+};
 
 module.exports = {
   USER,
-  USER_EXPECTED,
   USER_FOR_UPDATE,
-  USER_AFTER_UPDATE,
   USER_LIST,
-  USER_NOT_FOUND,
+  USER_ERROR,
   PRODUCT_EXPECT,
   PRODUCT_LIST,
-  PRODUTCT_LIST_2,
-  PRODUCT_NOT_FOUND,
-  PRODUCT_EXPECT_GOOGLE,
+  PRODUTCT_LIST_NEXT,
   PRODUTCT_LIST_GOOGLE,
   PRICE_ACTUAL,
-  PRICE_ACTUAL_EXPECTED,
-  PRICE_ACTUAL_ALL,
-  PRICE_NOT_FOUND,
+  PRICE_ERROR,
   MARKET,
-  MARKET_LIST_EXPECTED,
   MARKET_EXPECTED,
+  MARKET_ERROR,
+  NOT_FOUND,
 };

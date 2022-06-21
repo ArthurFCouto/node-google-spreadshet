@@ -7,26 +7,24 @@ const {
 } = require('../src/service/googlesheetsservice');
 const {
   USER,
-  USER_EXPECTED,
   USER_FOR_UPDATE,
-  USER_AFTER_UPDATE,
   USER_LIST,
-  USER_NOT_FOUND,
   PRODUCT_EXPECT,
   PRODUCT_LIST,
-  PRODUTCT_LIST_2,
-  PRODUCT_NOT_FOUND,
-  PRODUCT_EXPECT_GOOGLE,
+  PRODUTCT_LIST_NEXT,
   PRODUTCT_LIST_GOOGLE,
   PRICE_ACTUAL,
-  PRICE_ACTUAL_ALL,
-  PRICE_ACTUAL_EXPECTED,
   MARKET,
   MARKET_EXPECTED,
+  PRICE_ERROR,
+  USER_ERROR,
+  NOT_FOUND,
+  MARKET_ERROR,
 } = require('./mocks');
 
 describe('Cosmos Service', function () {
   this.timeout(10000);
+  const errorMsg = 'Ops! Ocorreu um erro durante a pesquisa';
 
   it('Busca um produto na api Cosmos pelo código', async ()=> {
     const result = await cosmosService.geBytLins(PRODUCT_EXPECT.codigoProduto).catch((erro)=> erro);
@@ -42,58 +40,80 @@ describe('Cosmos Service', function () {
   it('Busca a segunda página da lista retornada pela api Cosmos', async ()=> {
     const result = await cosmosService.getByNextPage(PRODUCT_LIST.proximaPagina).catch((erro)=> erro);
     const resultCompare = { ...result, listaProduto: [] };
-    assert.deepEqual(resultCompare, PRODUTCT_LIST_2);
+    assert.deepEqual(resultCompare, PRODUTCT_LIST_NEXT);
   });
 
   it('Verificando se retorna um erro default', async ()=> {
     const result = await cosmosService.geBytLins(0).catch((erro)=> erro);
-    assert.deepEqual(result, PRODUCT_NOT_FOUND);
+    assert.deepEqual(result, { ...NOT_FOUND, error: errorMsg });
   });
 });
 
-describe('Testando o design strategies - Usuários', ()=> {
-  it('Criando um usuário na API planilha', async ()=> {
+describe('Testando o design strategies - Usuários', function () {
+  this.timeout(20000);
+  const senhaUsuario = '********';
+  const errorMsg = 'Erro ao buscar usuário';
+
+  it('Verificando as validações de cadastro de usuário', async ()=> {
+    const context = new Context(new User());
+    const result = await context.create({ }).catch((error)=> error);
+    assert.deepEqual(result, USER_ERROR);
+  });
+
+  it('Verificando o método de cadastro de usuários', async ()=> {
     const context = new Context(new User());
     const result = await context.create(USER).catch((error)=> error);
-    assert.deepEqual(result, USER_EXPECTED);
-  }).timeout(10000);
+    assert.deepEqual(result, { ...USER, senhaUsuario });
+  });
 
-  it('Atualizando um usuário pelo email na API planilha', async ()=> {
+  it('Atualizando um usuário pelo email', async ()=> {
     const context = new Context(new User());
     const result = await context.update(USER.emailUsuario, USER_FOR_UPDATE).catch((error)=> error);
-    assert.deepEqual(result, USER_AFTER_UPDATE);
-  }).timeout(10000);
+    assert.deepEqual(result, { ...USER_FOR_UPDATE, senhaUsuario });
+  });
 
-  it('Buscando todos os usuários da API planilhas', async ()=> {
+  it('Buscando todos os usuários cadastrados', async ()=> {
     const context = new Context(new User());
     const result = await context.getAll().catch((error)=> error);
-    assert.deepEqual(result, USER_LIST);
-  }).timeout(10000);
+    assert.deepEqual(result[2], { ...USER_FOR_UPDATE, senhaUsuario });
+  });
 
-  it('Excluindo um usuário pelo email', async ()=> {
+  it('Verificando o método de exclusão de usuário', async ()=> {
     const context = new Context(new User());
-    const result = await context.delete(USER.emailUsuario).catch((error)=> error);
-    assert.deepEqual(result, USER_AFTER_UPDATE);
-  }).timeout(10000);
+    const result = await context.delete(USER_FOR_UPDATE.emailUsuario).catch((error)=> error);
+    assert.deepEqual(result, { ...USER_FOR_UPDATE, senhaUsuario });
+  });
 
   it('Verificando se retorna um erro default', async ()=> {
     const context = new Context(new User());
-    const result = await context.getById(USER.emailUsuario).catch((error)=> error);
-    assert.deepEqual(result, USER_NOT_FOUND);
-  }).timeout(10000);
+    const result = await context.getById(USER_FOR_UPDATE.emailUsuario).catch((error)=> error);
+    assert.deepEqual(result, { ...NOT_FOUND, error: errorMsg });
+  });
 
   it('Buscando um usuário pelo e-mail', async ()=> {
     const context = new Context(new User());
     const result = await context.getById(USER_LIST[0].emailUsuario).catch((error)=> error);
     assert.deepEqual(result, USER_LIST[0]);
-  }).timeout(10000);
+  });
 });
 
-describe('Testando o design strategies - Produtos', ()=> {
-  it('Cria um produto na API planilhas pelo código', async ()=> {
+/*
+  Criar método de validação de cadastro de produto
+*/
+describe.only('Testando o design strategies - Produtos', ()=> {
+  const origemGoogle = 'GOOGLESPREADSHEET';
+  const description = 'refinado';
+
+  it('Verifica o método delete na API planilhas', async ()=> {
     const context = new Context(new Product());
-    const result = await context.create(PRODUCT_EXPECT_GOOGLE).catch(((erro)=> erro));
-    assert.deepEqual({ ...result, atualizadoEm: '' }, PRODUCT_EXPECT_GOOGLE);
+    const result = await context.delete(PRODUCT_EXPECT.codigoProduto).catch(((erro)=> erro));
+    assert.deepEqual({ ...result, atualizadoEm: '' }, { ...PRODUCT_EXPECT, origem: origemGoogle });
+  }).timeout(10000);
+
+  it('Verificando o método de cadastro de produtos na API planilhas', async ()=> {
+    const context = new Context(new Product());
+    const result = await context.create(PRODUCT_EXPECT).catch(((erro)=> erro));
+    assert.deepEqual({ ...result, atualizadoEm: '' }, { ...PRODUCT_EXPECT, origem: origemGoogle });
   }).timeout(10000);
 
   it('Busca todos os produtos na API planilhas', async ()=> {
@@ -109,103 +129,145 @@ describe('Testando o design strategies - Produtos', ()=> {
     });
   }).timeout(10000);
 
-  it('Apaga um produto na API planilhas pelo código', async ()=> {
-    const context = new Context(new Product());
-    const result = await context.delete(PRODUCT_EXPECT_GOOGLE.codigoProduto).catch(((erro)=> erro));
-    assert.deepEqual({ ...result, atualizadoEm: '' }, PRODUCT_EXPECT_GOOGLE);
-  }).timeout(10000);
-
   it('Busca um produto na API planilhas pela descrição', async ()=> {
     const context = new Context(new Product());
-    const result = await context.getByDescription('refinado').catch(((erro)=> erro));
+    const result = await context.getByDescription(description).catch(((erro)=> erro));
     assert.deepEqual({
       ...result,
       listaProduto: [],
     }, {
       ...PRODUTCT_LIST_GOOGLE,
-      porPagina: 0,
-      totalProduto: 0,
+      listaProduto: [],
+      proximaPagina: undefined,
     });
   }).timeout(10000);
 });
 
-/*
-  Ainda trabalhando na melhor forma de modelar as respostas para estes métodos
-*/
 describe('Testando o design strategies - Preços', function () {
   this.timeout(10000);
+  const precoAtual = '6.25';
+  const atualizadoEm = '';
+  const errorMsg = 'Ainda não há preços atuais cadastrados para o produto com código 7891024134702';
 
-  it('Cria um preço na API planilhas', async ()=> {
+  it('Verifica o método de validação', async ()=> {
+    const context = new Context(new Price());
+    const result = await context.create({ }).catch(((erro)=> erro));
+    assert.deepEqual(
+      result,
+      PRICE_ERROR,
+    );
+  }).timeout(10000);
+
+  it('Verifica o método create', async ()=> {
     const context = new Context(new Price());
     const result = await context.create(PRICE_ACTUAL).catch(((erro)=> erro));
     assert.deepEqual(
       {
         ...result,
-        atualizadoEm: '',
+        atualizadoEm,
       },
-      PRICE_ACTUAL_EXPECTED,
+      PRICE_ACTUAL,
     );
   }).timeout(10000);
 
   it('Busca todos os preços cadastrados', async ()=> {
     const context = new Context(new Price());
     const result = await context.getAll().catch(((erro)=> erro));
-    assert.deepEqual(result, PRICE_ACTUAL_ALL);
+    const expected = result[0];
+    const price = expected[PRICE_ACTUAL.codigoProduto];
+    assert.deepEqual(
+      {
+        ...price[0],
+        atualizadoEm,
+      },
+      PRICE_ACTUAL,
+    );
   }).timeout(10000);
 
-  it('Atualiza um preço na API planilhas', async ()=> {
+  it('Verifica a atualização de preço cadastrado', async ()=> {
     const context = new Context(new Price());
-    const result = await context.create({ ...PRICE_ACTUAL, precoAtual: 5.31 }).catch(((erro)=> erro));
+    const result = await context.create({ ...PRICE_ACTUAL, precoAtual }).catch(((erro)=> erro));
     assert.deepEqual({
       ...result,
-      atualizadoEm: '',
+      atualizadoEm,
     }, {
-      ...PRICE_ACTUAL_EXPECTED,
-      precoAtual: '5.31',
+      ...PRICE_ACTUAL,
+      precoAtual,
     });
   }).timeout(10000);
 
-  it('Busca todos os preços cadastrados de um produto determinado', async ()=> {
+  it('Busca todos os preços cadastrados para um código de produto', async ()=> {
     const context = new Context(new Price());
     const result = await context.getById(PRICE_ACTUAL.codigoProduto).catch(((erro)=> erro));
-    assert.deepEqual(
-      result,
-      PRICE_ACTUAL_ALL,
-    );
+    const expected = result[0];
+    const price = expected[PRICE_ACTUAL.codigoProduto];
+    assert.deepEqual({
+      ...price[0],
+      atualizadoEm,
+    }, {
+      ...PRICE_ACTUAL,
+      precoAtual,
+    });
   }).timeout(10000);
 
-  it('Apaga todos os preços cadastrados de um produto determinado', async ()=> {
+  it('Deleta todos os preços para um produto cadastrado', async ()=> {
     const context = new Context(new Price());
     const result = await context.delete(PRICE_ACTUAL.codigoProduto).catch(((erro)=> erro));
-    assert.deepEqual(
-      result,
-      PRICE_ACTUAL_ALL,
-    );
+    const expected = result[0];
+    const price = expected[PRICE_ACTUAL.codigoProduto];
+    assert.deepEqual({
+      ...price[0],
+      atualizadoEm,
+    }, {
+      ...PRICE_ACTUAL,
+      precoAtual,
+    });
+  }).timeout(10000);
+
+  it('Verifica se retorna um erro default', async ()=> {
+    const context = new Context(new Price());
+    const result = await context.getById(PRICE_ACTUAL.codigoProduto).catch(((erro)=> erro));
+    assert.deepEqual(result, { ...NOT_FOUND, error: errorMsg });
   }).timeout(10000);
 });
 
-describe('Testando o design strategies - mercado', ()=> {
-  it('Criando um marcado na API planilha', async ()=> {
-    const context = new Context(new Market());
-    const result = await context.create(MARKET).catch((error)=> error);
-    assert.deepEqual({ ...result, atualizadoEm: '' }, MARKET_EXPECTED);
-  }).timeout(10000);
+describe('Testando o design strategies - mercado', function () {
+  this.timeout(20000);
+  const errorMsg = 'Erro ao buscar mercado';
 
-  it('Buscando um marcado na API planilha pelo CNPJ', async ()=> {
-    const context = new Context(new Market());
-    const result = await context.getById(MARKET.cnpjMercado).catch((error)=> error);
-    assert.deepEqual({ ...result, atualizadoEm: '' }, MARKET_EXPECTED);
-  }).timeout(10000);
-
-  it('Buscando todos os mercado da API planilhas', async ()=> {
-    const context = new Context(new Market());
-    const result = await context.getAll().catch((error)=> error);
-    assert.deepEqual(result, MARKET_EXPECTED);
-  }).timeout(10000);
-
-  it('Excluindo um marcado na API planilha pelo CNPJ', async ()=> {
+  it('Verificando o método de exclusão', async ()=> {
     const context = new Context(new Market());
     const result = await context.delete(MARKET.cnpjMercado).catch((error)=> error);
     assert.deepEqual({ ...result, atualizadoEm: '' }, MARKET_EXPECTED);
-  }).timeout(10000);
+  });
+
+  it('Verificando se retorna um erro default', async ()=> {
+    const context = new Context(new Market());
+    const result = await context.getById(MARKET.cnpjMercado).catch((error)=> error);
+    assert.deepEqual(result, { ...NOT_FOUND, error: errorMsg });
+  });
+
+  it('Verificando o método de validação do cadastro de mercado', async ()=> {
+    const context = new Context(new Market());
+    const result = await context.create({}).catch((error)=> error);
+    assert.deepEqual(result, MARKET_ERROR);
+  });
+
+  it('Verificando o método de cadastro de mercado', async ()=> {
+    const context = new Context(new Market());
+    const result = await context.create(MARKET).catch((error)=> error);
+    assert.deepEqual({ ...result, atualizadoEm: '' }, MARKET_EXPECTED);
+  });
+
+  it('Buscando um mercado pelo CNPJ', async ()=> {
+    const context = new Context(new Market());
+    const result = await context.getById(MARKET.cnpjMercado).catch((error)=> error);
+    assert.deepEqual({ ...result, atualizadoEm: '' }, MARKET_EXPECTED);
+  });
+
+  it('Buscando todos os mercados cadastrados', async ()=> {
+    const context = new Context(new Market());
+    const result = await context.getAll().catch((error)=> error);
+    assert.deepEqual({ ...result[0], atualizadoEm: '' }, MARKET_EXPECTED);
+  });
 });

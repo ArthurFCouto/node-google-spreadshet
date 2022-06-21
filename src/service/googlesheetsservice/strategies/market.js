@@ -79,35 +79,35 @@ class marketStrategies extends customInterface {
     } = data;
     if (!nomeMercado || nomeMercado.replace(/\s/g, '').length === 0) {
       error.push({
-        field: 'NOME',
+        field: 'nomeMercado',
         error: 'Campo não enviado ou vazio',
         value: nomeMercado || '',
       });
     }
     if (!cidadeMercado || cidadeMercado.replace(/\s/g, '').length === 0) {
       error.push({
-        field: 'CIDADE',
+        field: 'cidadeMercado',
         error: 'Campo não enviado ou vazio',
         value: cidadeMercado || '',
       });
     }
     if (!cepMercado || !(/^\d{8}$/).test(cepMercado)) {
       error.push({
-        field: 'CEP',
+        field: 'cepMercado',
         error: 'Campo não enviado ou com formato inválido',
         value: cepMercado || '',
       });
     }
     if (!cnpjMercado || !(/^\d{14}$/).test(cnpjMercado)) {
       error.push({
-        field: 'CNPJ',
+        field: 'cnpjMercado',
         error: 'Campo não enviado ou com formato inválido',
         value: cnpjMercado || '',
       });
     }
-    if (!telefoneMercado || !(/\d{11}/.test(telefoneMercado))) {
+    if (!telefoneMercado || !(/^\d{11}$/.test(telefoneMercado))) {
       error.push({
-        field: 'TELEFONE',
+        field: 'telefoneMercado',
         error: 'Campo não enviado ou com formato inválido',
         value: telefoneMercado || '',
       });
@@ -128,7 +128,7 @@ class marketStrategies extends customInterface {
     try {
       const validate = this._validateMarket(data);
       if (validate.length > 0) {
-        return modelResponseError('Erro ao criar mercado', { ...customError[401], data: validate });
+        return modelResponseError('Erro ao cadastrar mercado', { ...customError[401], data: validate });
       }
       if (await this._checkExist(data.cnpjMercado)) {
         return modelResponseError('CNPJ já cadastrado', customError[401]);
@@ -159,7 +159,7 @@ class marketStrategies extends customInterface {
 
   async getById(id) {
     try {
-      const market = await this._checkExist(id);
+      const market = id && await this._checkExist(id);
       if (market) {
         return modelResponseMarket(market);
       }
