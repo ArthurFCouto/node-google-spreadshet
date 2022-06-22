@@ -9,7 +9,9 @@ let response = {};
   Função que irá extrair os parâmetros da URL
 */
 const handleParams = ()=> {
-  const data = request.url.indexOf('?') !== -1 && request.url.slice(request.url.indexOf('?') + 1, request.url.length);
+  const { url } = request;
+  const indexOf = url.indexOf('?');
+  const data = indexOf !== -1 && url.slice(indexOf + 1, url.length);
   if (data) {
     const list = data.split('&').map((item)=> {
       const [key, value] = item.split('=');
@@ -23,11 +25,13 @@ const handleParams = ()=> {
 /*
   Função que irá extrair os path da URL e os parâmetros
 */
-const handleRegex = (url)=> {
+const handleRegex = (data)=> {
   try {
-    const src = request.url.indexOf('?') !== -1 ? request.url.slice(0, request.url.indexOf('?')) : request.url;
-    const regexp = pathToRegexp(url);
-    const parameters = match(url);
+    const { url } = request;
+    const indexOf = url.indexOf('?');
+    const src = indexOf !== -1 ? url.slice(0, indexOf) : url;
+    const regexp = pathToRegexp(data);
+    const parameters = match(data);
     const { params } = parameters(src);
     request.path = params && JSON.parse(JSON.stringify(parameters(src).params));
     request.params = handleParams();

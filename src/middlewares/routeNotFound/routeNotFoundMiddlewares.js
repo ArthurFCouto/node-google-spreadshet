@@ -5,7 +5,7 @@ function routeNotFound(request, response) {
     details: {
       status: 404,
       statusText: 'Not found',
-      data: `O endereço ${request.url}, com o método ${request.method} ,não existe`,
+      data: `O endereço ${request.url}, com o método ${request.method},não existe`,
     },
   }));
 }

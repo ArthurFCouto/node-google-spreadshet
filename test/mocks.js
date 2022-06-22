@@ -87,6 +87,36 @@ const PRODUCT_EXPECT = {
   atualizadoEm: '',
 };
 
+const PRODUCT_ERROR = {
+  details: {
+    data: [
+      {
+        error: 'Campo não enviado',
+        field: 'descricaoProduto',
+        value: '',
+      },
+      {
+        error: 'Campo não enviado',
+        field: 'detalheProduto',
+        value: '',
+      },
+      {
+        field: 'precoMedioNacional',
+        error: 'Campo não enviado ou em formato inválido',
+        value: '',
+      },
+      {
+        field: 'codigoProduto',
+        error: 'Campo não enviado ou em formato inválido',
+        value: '',
+      },
+    ],
+    status: 401,
+    statusText: 'Bad request',
+  },
+  error: 'Erro ao cadastrar produto',
+};
+
 const PRODUCT_LIST = {
   atualPagina: 1,
   porPagina: 30,
@@ -224,6 +254,7 @@ module.exports = {
   USER_LIST,
   USER_ERROR,
   PRODUCT_EXPECT,
+  PRODUCT_ERROR,
   PRODUCT_LIST,
   PRODUTCT_LIST_NEXT,
   PRODUTCT_LIST_GOOGLE,

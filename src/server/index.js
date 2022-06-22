@@ -3,5 +3,5 @@ const config = require('./config');
 
 const { port } = config;
 server.listen(port, ()=> {
-  console.log('Server is running');
+  console.log(`Server is running on port ${port}`);
 });

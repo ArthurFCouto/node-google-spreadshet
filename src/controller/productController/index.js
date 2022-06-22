@@ -16,10 +16,10 @@ class ProductController {
 
   async getByDescription(request, response) {
     const context = new Context(new Product());
-    const { description, mode } = request.params;
+    const { description, database } = request.params;
     if (description) {
       let data = {};
-      if (mode && mode.toUpperCase() === 'COSMOS') {
+      if (database && database.toUpperCase() === 'COSMOS') {
         data = await cosmosService.getByDescription(description).catch((error)=> error);
       } else {
         data = await context.getByDescription(description).catch((error)=> error);
@@ -32,7 +32,7 @@ class ProductController {
     response.writeHead(401);
     return response.end(JSON.stringify({
       error: 'Erro no envio dos parâmetros',
-      details: customError[401],
+      details: { ...customError[401], data: 'Enviar parametro description' },
     }));
   }
 

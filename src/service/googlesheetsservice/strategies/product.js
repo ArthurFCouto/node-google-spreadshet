@@ -1,4 +1,5 @@
 /* eslint-disable linebreak-style */
+/* eslint-disable no-restricted-globals */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-plusplus */
@@ -68,6 +69,42 @@ class ProductStrategy extends CustomInterface {
     return product;
   }
 
+  _validateProduct(data) {
+    const error = [];
+    const {
+      descricaoProduto, detalheProduto, precoMedioNacional, codigoProduto,
+    } = data;
+    if (!descricaoProduto || descricaoProduto.replace(/\s/g, '').length === 0) {
+      error.push({
+        field: 'descricaoProduto',
+        error: 'Campo não enviado',
+        value: '',
+      });
+    }
+    if (!descricaoProduto || detalheProduto.replace(/\s/g, '').length === 0) {
+      error.push({
+        field: 'detalheProduto',
+        error: 'Campo não enviado',
+        value: '',
+      });
+    }
+    if (!precoMedioNacional || isNaN(precoMedioNacional)) {
+      error.push({
+        field: 'precoMedioNacional',
+        error: 'Campo não enviado ou em formato inválido',
+        value: '',
+      });
+    }
+    if (!codigoProduto || !(/^\d+$/.test(codigoProduto))) {
+      error.push({
+        field: 'codigoProduto',
+        error: 'Campo não enviado ou em formato inválido',
+        value: codigoProduto || '',
+      });
+    }
+    return error;
+  }
+
   async getAll() {
     try {
       const rows = await this._getRows();
@@ -79,6 +116,10 @@ class ProductStrategy extends CustomInterface {
 
   async create(data) {
     try {
+      const validate = await this._validateProduct(data);
+      if (validate.length > 0) {
+        return modelResponseError('Erro ao cadastrar produto', { ...customError[401], data: validate });
+      }
       if (await this._checkExist(data.codigoProduto)) {
         return modelResponseError('Ops! Este produto já cadastrado', customError[401]);
       }
