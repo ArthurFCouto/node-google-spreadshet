@@ -46,7 +46,7 @@ const USER_LIST = [
 const USER_ERROR = {
   error: 'Erro ao criar usuário',
   details: {
-    status: 401,
+    status: 400,
     statusText: 'Bad request',
     data: [
       {
@@ -111,7 +111,7 @@ const PRODUCT_ERROR = {
         value: '',
       },
     ],
-    status: 401,
+    status: 400,
     statusText: 'Bad request',
   },
   error: 'Erro ao cadastrar produto',
@@ -176,7 +176,7 @@ const PRICE_ERROR = {
         value: '',
       },
     ],
-    status: 401,
+    status: 400,
     statusText: 'Bad request',
   },
   error: 'Erro ao cadastrar preço',
@@ -233,7 +233,7 @@ const MARKET_ERROR = {
         value: '',
       },
     ],
-    status: 401,
+    status: 400,
     statusText: 'Bad request',
   },
   error: 'Erro ao cadastrar mercado',

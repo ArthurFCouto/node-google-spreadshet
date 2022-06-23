@@ -6,6 +6,24 @@ let request = {};
 let response = {};
 
 /*
+  Função que irá converter os dados enviados no body da requisição via POST.
+  O tempo foi definido apenas para fins de teste, ainda é preciso encontrar a melhor maneira de executar este método
+*/
+const handleBodyParser = (callback)=> {
+  let res = [];
+  request.on('data', (chunk)=> {
+    res.push(chunk);
+  }).on('end', ()=> {
+    res = Buffer.concat(res).toString();
+    request.rawBody = res;
+    if (res && res.indexOf('{') > -1) {
+      request.body = JSON.parse(res);
+    }
+  });
+  return setTimeout(()=> callback(request, response), 1500);
+};
+
+/*
   Função que irá extrair os parâmetros da URL
 */
 const handleParams = ()=> {
@@ -58,7 +76,8 @@ router.prototype.get = async (url, callback)=> {
 router.prototype.post = async (url, callback)=> {
   if (request.method === 'POST' && handleRegex(url)) {
     request._finished = true;
-    return callback(request, response);
+    // return callback(request, response);
+    return handleBodyParser(callback);
   }
   return this;
 };

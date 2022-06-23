@@ -1,21 +1,38 @@
 const controller = require('../controller');
 const productController = require('../controller/productController');
+const userController = require('../controller/userController');
+const priceController = require('../controller/priceController');
+const marketController = require('../controller/marketController');
 const { handleCors, handleRouteNotFound } = require('../middlewares');
 const useRouter = require('../hooks/routes');
 const customError = require('../util/error');
+const config = require('./config');
 
 async function routes(request, response) {
+  const { versionUrl } = config;
   const routesCustom = useRouter(request, response);
-  routesCustom.jsonContentType();
   routesCustom.use(handleCors);
-  routesCustom.get('/api/v1/', controller.getLogo);
-  routesCustom.get('/api/v1/produto', productController.getData);
-  routesCustom.get('/api/v1/produto/buscar', productController.getByDescription);
+  routesCustom.jsonContentType();
+  routesCustom.get(`${versionUrl}/`, controller.getLogo);
+  routesCustom.get(`${versionUrl}/produto`, productController.getAll);
+  routesCustom.get(`${versionUrl}/produto/buscar`, productController.getByDescription);
   /*
     \\d+ <= Definindo que serão aceitos apenas números para o path especificado
   */
-  routesCustom.get('/api/v1/produto/:id(\\d+)', productController.getById);
-  routesCustom.delete('/api/v1/produto/:id(\\d+)', productController.deleteProduct);
+  routesCustom.get(`${versionUrl}/produto/:id(\\d+)`, productController.getById);
+  routesCustom.post(`${versionUrl}/usuario`, userController.save);
+  routesCustom.post(`${versionUrl}/preco`, priceController.save);
+  routesCustom.get(`${versionUrl}/preco`, priceController.getAll);
+  routesCustom.get(`${versionUrl}/preco/:id(\\d+)`, priceController.getById);
+  routesCustom.delete(`${versionUrl}/preco/:id(\\d+)`, priceController.delete);
+  routesCustom.get(`${versionUrl}/usuario`, userController.getAll);
+  routesCustom.get(`${versionUrl}/usuario/detalhes`, userController.getById);
+  routesCustom.delete(`${versionUrl}/usuario/detalhes`, userController.delete);
+  routesCustom.delete(`${versionUrl}/produto/:id(\\d+)`, productController.delete);
+  routesCustom.post(`${versionUrl}/mercado`, marketController.save);
+  routesCustom.get(`${versionUrl}/mercado`, marketController.getAll);
+  routesCustom.get(`${versionUrl}/mercado/:cnpj(\\d+)`, marketController.getById);
+  routesCustom.delete(`${versionUrl}/mercado/:cnpj(\\d+)`, marketController.delete);
   routesCustom.use(handleRouteNotFound);
 }
 

@@ -39,7 +39,7 @@ class CosmosService {
       Válida se é uma url válida.
     */
     const validation = /^((http(s?):\/\/(api.)?[a-z]+.?[a-z]+.com.br\/))/;
-    return validation.test(url) ? handleResults(url) : modelResponseError('Ops! Ocorreu um erro durante a pesquisa', { status: 401, statusText: 'Bad Request', data: 'Parâmetro url inválido' });
+    return validation.test(url) ? handleResults(url) : modelResponseError('Ops! Ocorreu um erro durante a pesquisa', { status: 400, statusText: 'Bad Request', data: 'Parâmetro url inválido' });
   }
 }
 

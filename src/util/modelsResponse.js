@@ -174,44 +174,49 @@ function modelResponsePriceList(data) {
 */
 function modelResponseError(message, error) {
   message = message || 'Erro interno';
-  let response = {
-    error: message,
-    details: {
-      status: 500,
-      statusText: 'Internal server error',
-      data: 'Erro interno no servidor, tente mais tarde',
-    },
-  };
-  if (error.response) {
-    response = {
-      error: message,
-      details: {
-        status: error.response.status,
-        statusText: error.response.statusText,
-        data: error.response.data.message || error.response.data.error_description,
-      },
-    };
-  } else if (error.request) {
-    response = {
+  let res = {};
+  if (error === null) {
+    res = {
       error: message,
       details: {
         status: 500,
         statusText: 'Internal server error',
-        data: error.request,
+        data: 'Erro interno no servidor, tente mais tarde',
       },
     };
-  } else if (error.status) {
-    response = {
-      error: message,
-      details: {
-        status: error.status,
-        statusText: error.statusText,
-        data: error.data,
-      },
-    };
+  } else {
+    const { response, request, status } = error;
+    if (response) {
+      res = {
+        error: message,
+        details: {
+          status: response.status,
+          statusText: response.statusText,
+          data: response.data.message || error.response.data.error_description,
+        },
+      };
+    } else if (request) {
+      res = {
+        error: message,
+        details: {
+          status: 500,
+          statusText: 'Internal server error',
+          data: request,
+        },
+      };
+    } else if (status) {
+      res = {
+        error: message,
+        details: {
+          status,
+          statusText: error.statusText,
+          data: error.data,
+        },
+      };
+    }
   }
   return new Promise((resolve, reject)=> {
-    reject(response);
+    reject(res);
   });
 }
 

@@ -5,7 +5,7 @@
 
 class NotImplementedException extends Error {
   constructor() {
-    super('Not Implemented Exception');
+    super('Method Not Implemented');
   }
 }
 

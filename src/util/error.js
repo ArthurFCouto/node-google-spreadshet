@@ -1,6 +1,6 @@
 const customError = {
-  401: {
-    status: 401,
+  400: {
+    status: 400,
     statusText: 'Bad request',
     data: 'Erro durante a requisição',
   },

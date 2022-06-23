@@ -1,4 +1,5 @@
 /* eslint-disable linebreak-style */
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-globals */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-underscore-dangle */
@@ -122,10 +123,11 @@ class PriceStrategy extends CustomInterface {
 
   async create(data) {
     try {
+      data = data || {};
       let response;
       const validate = await this._validatePrice(data);
       if (validate.length > 0) {
-        return modelResponseError('Erro ao cadastrar preço', { ...customError[401], data: validate });
+        return modelResponseError('Erro ao cadastrar preço', { ...customError[400], data: validate });
       }
       const list = await this._searchForExisting(data.codigoProduto);
       if (list.length > 0) {

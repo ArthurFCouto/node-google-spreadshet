@@ -5,7 +5,7 @@ const { Context, Product } = require('../../service/googlesheetsservice');
 const customError = require('../../util/error');
 
 class ProductController {
-  async getData(request, response) {
+  async getAll(request, response) {
     const context = new Context(new Product());
     const data = await context.getAll().catch((error)=> error);
     if (data.error) {
@@ -29,10 +29,10 @@ class ProductController {
       }
       return response.end(JSON.stringify(data));
     }
-    response.writeHead(401);
+    response.writeHead(400);
     return response.end(JSON.stringify({
-      error: 'Erro no envio dos parâmetros',
-      details: { ...customError[401], data: 'Enviar parametro description' },
+      error: 'Ops! Erro no envio dos parâmetros',
+      details: { ...customError[400], data: 'Enviar parametro description' },
     }));
   }
 
@@ -67,14 +67,14 @@ class ProductController {
       response.writeHead(custom.status);
       return response.end(JSON.stringify(custom.data));
     }
-    response.writeHead(401);
+    response.writeHead(400);
     return response.end(JSON.stringify({
-      error: 'Erro no envio dos parâmetros',
-      details: customError[401],
+      error: 'Ops! Erro no envio dos parâmetros',
+      details: { ...customError[400], data: 'Enviar parametro nextUrl' },
     }));
   }
 
-  async deleteProduct(request, response) {
+  async delete(request, response) {
     const context = new Context(new Product());
     const { id } = request.path;
     /*
@@ -87,13 +87,10 @@ class ProductController {
       }
       return response.end(JSON.stringify(data));
     }
-    response.writeHead(401);
+    response.writeHead(404);
     return response.end(JSON.stringify({
-      error: 'Erro no envio dos parâmetros',
-      details: {
-        ...customError[401],
-        data: 'Enviar um ID válido',
-      },
+      error: 'Ops! Não foi encontrado um produto com os dados enviados',
+      details: customError[404],
     }));
   }
 }

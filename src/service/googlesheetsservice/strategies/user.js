@@ -1,4 +1,5 @@
 /* eslint-disable linebreak-style */
+/* eslint-disable no-param-reassign */
 /* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
@@ -143,12 +144,13 @@ class userStrategies extends customInterface {
 
   async create(data) {
     try {
+      data = data || {};
       const validate = this._validateUser(data);
       if (validate.length > 0) {
-        return modelResponseError('Erro ao criar usuário', { ...customError[401], data: validate });
+        return modelResponseError('Erro ao criar usuário', { ...customError[400], data: validate });
       }
       if (await this._checkExist(data.emailUsuario)) {
-        return modelResponseError('Email já cadastrado', customError[401]);
+        return modelResponseError('Email já cadastrado', customError[400]);
       }
       const sheet = await this._getSheet();
       return sheet.addRow({
@@ -197,7 +199,7 @@ class userStrategies extends customInterface {
         }
         return modelResponseError('Erro ao atualizar usuário', customError[404]);
       }
-      return modelResponseError('Erro ao atualizar usuário', { ...customError[401], data: 'Favor enviar o id e os dados corretamente' });
+      return modelResponseError('Erro ao atualizar usuário', { ...customError[400], data: 'Favor enviar o id e os dados corretamente' });
     } catch {
       return modelResponseError('Erro ao atualizar usuário pelo ID', customError[500]);
     }

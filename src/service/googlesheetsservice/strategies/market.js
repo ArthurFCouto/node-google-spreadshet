@@ -1,4 +1,5 @@
 /* eslint-disable linebreak-style */
+/* eslint-disable no-param-reassign */
 /* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
@@ -126,12 +127,13 @@ class marketStrategies extends customInterface {
 
   async create(data) {
     try {
+      data = data || {};
       const validate = this._validateMarket(data);
       if (validate.length > 0) {
-        return modelResponseError('Erro ao cadastrar mercado', { ...customError[401], data: validate });
+        return modelResponseError('Erro ao cadastrar mercado', { ...customError[400], data: validate });
       }
       if (await this._checkExist(data.cnpjMercado)) {
-        return modelResponseError('CNPJ já cadastrado', customError[401]);
+        return modelResponseError('CNPJ já cadastrado', customError[400]);
       }
       const sheet = await this._getSheet();
       return sheet.addRow({
