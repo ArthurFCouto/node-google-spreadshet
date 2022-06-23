@@ -1,7 +1,9 @@
-const handleCors = require('./cors/corsMiddlewares');
-const handleRouteNotFound = require('./routeNotFound/routeNotFoundMiddlewares');
+const handleCors = require('./cors');
+const handleRouteNotFound = require('./routeNotFound');
+const handleContentTypeJson = require('./contentTypeJson');
 
 module.exports = {
+  handleContentTypeJson,
   handleCors,
   handleRouteNotFound,
 };

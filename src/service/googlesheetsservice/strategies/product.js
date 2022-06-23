@@ -72,8 +72,11 @@ class ProductStrategy extends CustomInterface {
 
   _validateProduct(data) {
     const error = [];
+    if (typeof data !== 'object') {
+      data = {};
+    }
     const {
-      descricaoProduto, detalheProduto, precoMedioNacional, codigoProduto,
+      precoMedioNacional, detalheProduto, descricaoProduto, codigoProduto,
     } = data;
     if (!descricaoProduto || descricaoProduto.replace(/\s/g, '').length === 0) {
       error.push({
@@ -89,15 +92,15 @@ class ProductStrategy extends CustomInterface {
         value: '',
       });
     }
-    /*
-      if (!precoMedioNacional || isNaN(precoMedioNacional)) {
+    if (precoMedioNacional !== null) {
+      if (precoMedioNacional === undefined || isNaN(precoMedioNacional)) {
         error.push({
           field: 'precoMedioNacional',
           error: 'Campo não enviado ou em formato inválido',
           value: '',
         });
       }
-    */
+    }
     if (!codigoProduto || !(/^\d+$/.test(codigoProduto))) {
       error.push({
         field: 'codigoProduto',
@@ -113,16 +116,15 @@ class ProductStrategy extends CustomInterface {
       const rows = await this._getRows();
       return modelResponseProduct(rows);
     } catch {
-      return modelResponseError('Ops! Ocorreu um erro durante a pesquisa', this._error);
+      return modelResponseError('Ops! Erro ao buscar produtos cadastrados', this._error);
     }
   }
 
   async create(data) {
     try {
-      data = data || {};
       const validate = await this._validateProduct(data);
       if (validate.length > 0) {
-        return modelResponseError('Erro ao cadastrar produto', { ...customError[400], data: validate });
+        return modelResponseError('Ops! Não foi possível cadastrar o produto', { ...customError[400], data: validate });
       }
       if (await this._checkExist(data.codigoProduto)) {
         return modelResponseError('Ops! Este produto já cadastrado', customError[400]);
@@ -142,12 +144,11 @@ class ProductStrategy extends CustomInterface {
       })
         .then((response)=> modelResponseProduct(response))
         .catch((error)=> {
-          console.error('Erro ao cadastrar o produto na planilha', error);
           this._error = error;
           throw new Error();
         });
     } catch {
-      return modelResponseError('Ops! Ocorreu um erro durante o cadastro do produto', this._error);
+      return modelResponseError('Ops! Erro durante o cadastro de um produto', this._error);
     }
   }
 
@@ -157,9 +158,9 @@ class ProductStrategy extends CustomInterface {
       if (product) {
         return modelResponseProduct(product);
       }
-      return modelResponseError(`O produto com código ${id} não está cadastrado`, customError[404]);
+      return modelResponseError(`Ops! O produto com código ${id} não está cadastrado`, customError[404]);
     } catch {
-      return modelResponseError('Ops! Ocorreu um erro durante a pesquisa', customError[500]);
+      return modelResponseError(`Ops! Erro durante a pesquisa do código ${id}`, customError[500]);
     }
   }
 
@@ -175,7 +176,7 @@ class ProductStrategy extends CustomInterface {
       });
       return modelResponseProduct(product);
     } catch {
-      return modelResponseError('Ops! Ocorreu um erro durante a pesquisa', customError[500]);
+      return modelResponseError('Ops! Erro durante a pesquisa pela descrição', customError[500]);
     }
   }
 
@@ -187,9 +188,9 @@ class ProductStrategy extends CustomInterface {
         await produto.del();
         return modelResponseProduct(response);
       }
-      return modelResponseError(`O produto de código ${id} não está cadastrado`, customError[404]);
+      return modelResponseError(`Ops! O produto com código ${id} não está cadastrado`, customError[404]);
     } catch {
-      return modelResponseError('Ops! Ocorreu um erro durante a exclusão do produto', customError[500]);
+      return modelResponseError(`Ops! Erro durante a exclusão do código ${id}`, customError[500]);
     }
   }
 }

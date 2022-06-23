@@ -76,6 +76,9 @@ class PriceStrategy extends CustomInterface {
     const error = [];
     const contextMarket = new Market();
     const contextUser = new User();
+    if (typeof data !== 'object') {
+      data = {};
+    }
     const {
       emailUsuario, cnpjMercado, codigoProduto, precoAtual,
     } = data;
@@ -117,17 +120,16 @@ class PriceStrategy extends CustomInterface {
       const rows = await this._getRows();
       return modelResponsePrice(rows);
     } catch {
-      return modelResponseError('Ops! Ocorreu um erro durante a pesquisa', this._error);
+      return modelResponseError('Ops! Erro ao buscar preços cadastrados', this._error);
     }
   }
 
   async create(data) {
     try {
-      data = data || {};
       let response;
       const validate = await this._validatePrice(data);
       if (validate.length > 0) {
-        return modelResponseError('Erro ao cadastrar preço', { ...customError[400], data: validate });
+        return modelResponseError('Ops! Não foi possível cadastrar o preço', { ...customError[400], data: validate });
       }
       const list = await this._searchForExisting(data.codigoProduto);
       if (list.length > 0) {
@@ -158,13 +160,12 @@ class PriceStrategy extends CustomInterface {
           response = res;
         })
         .catch((error)=> {
-          console.error('Erro ao cadastrar o preco atual na planilha', error);
           this._error = error;
           throw new Error();
         });
       return modelResponsePrice(response);
     } catch {
-      return modelResponseError('Ops! Ocorreu um erro durante o cadastro do produto', this._error);
+      return modelResponseError('Ops! Erro durante o cadastro do preço', this._error);
     }
   }
 
@@ -174,9 +175,9 @@ class PriceStrategy extends CustomInterface {
       if (list.length > 0) {
         return modelResponsePrice(list);
       }
-      return modelResponseError(`Ainda não há preços atuais cadastrados para o produto com código ${id}`, customError[404]);
+      return modelResponseError(`Ops! Ainda não há preços atuais cadastrados para o produto com código ${id}`, customError[404]);
     } catch {
-      return modelResponseError('Ops! Ocorreu um erro durante a pesquisa', customError[500]);
+      return modelResponseError(`Ops! Erro durante a pesquisa do código ${id}`, customError[500]);
     }
   }
 
@@ -191,9 +192,9 @@ class PriceStrategy extends CustomInterface {
         }
         return modelResponsePrice(list);
       }
-      return modelResponseError(`Ainda não há preços atuais cadastrados para o produto com código ${id}`, customError[404]);
+      return modelResponseError(`Ops! Ainda não há preços atuais cadastrados para o produto com código ${id}`, customError[404]);
     } catch {
-      return modelResponseError('Ops! Ocorreu um erro durante a exclusão do produto', customError[500]);
+      return modelResponseError('Ops! Erro durante a exclusão do preço', customError[500]);
     }
   }
 }

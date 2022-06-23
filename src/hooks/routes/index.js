@@ -115,10 +115,6 @@ router.prototype.use = (callback)=> {
   }
 };
 
-router.prototype.jsonContentType = ()=> {
-  response.setHeader('Content-Type', 'application/json');
-};
-
 const useRouter = (req, res)=> new router(req, res);
 
 module.exports = useRouter;

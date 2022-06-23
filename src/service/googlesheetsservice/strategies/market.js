@@ -75,6 +75,9 @@ class marketStrategies extends customInterface {
 
   _validateMarket(data) {
     const error = [];
+    if (typeof data !== 'object') {
+      data = {};
+    }
     const {
       cnpjMercado, nomeMercado, enderecoMercado, numeroMercado, complementoMercado, telefoneMercado, cidadeMercado, cepMercado,
     } = data;
@@ -121,19 +124,18 @@ class marketStrategies extends customInterface {
       const rows = await this._getRows();
       return rows.map((market)=> (modelResponseMarket(market)));
     } catch {
-      return modelResponseError('Erro ao buscar todos os mercados ', this._error);
+      return modelResponseError('Ops! Erro ao buscar mercados cadastrados', this._error);
     }
   }
 
   async create(data) {
     try {
-      data = data || {};
       const validate = this._validateMarket(data);
       if (validate.length > 0) {
-        return modelResponseError('Erro ao cadastrar mercado', { ...customError[400], data: validate });
+        return modelResponseError('Ops! Não foi possível cadastrar o mercado', { ...customError[400], data: validate });
       }
       if (await this._checkExist(data.cnpjMercado)) {
-        return modelResponseError('CNPJ já cadastrado', customError[400]);
+        return modelResponseError('Ops! CNPJ já cadastrado', customError[400]);
       }
       const sheet = await this._getSheet();
       return sheet.addRow({
@@ -150,12 +152,11 @@ class marketStrategies extends customInterface {
       })
         .then((res)=> modelResponseMarket(res))
         .catch((error)=> {
-          console.log('Houve um erro ao criar mercado', error);
           this._error = error;
           throw new Error();
         });
     } catch {
-      return modelResponseError('Houve um erro ao criar mercado', this._error);
+      return modelResponseError('Ops! Erro durante o cadastro do mercado', this._error);
     }
   }
 
@@ -165,9 +166,9 @@ class marketStrategies extends customInterface {
       if (market) {
         return modelResponseMarket(market);
       }
-      return modelResponseError('Erro ao buscar mercado', customError[404]);
+      return modelResponseError(`Ops! O mercado com CNPJ ${id} não está cadastrado`, customError[404]);
     } catch {
-      return modelResponseError('Erro ao buscar mercado pelo CNPJ', customError[500]);
+      return modelResponseError('Ops! Erro durante a busca pelo CNPJ', customError[500]);
     }
   }
 
@@ -179,9 +180,9 @@ class marketStrategies extends customInterface {
         await market.del();
         return response;
       }
-      return modelResponseError('Erro ao deletar mercado', customError[404]);
+      return modelResponseError(`Ops! O mercado com CNPJ ${id} não está cadastrado`, customError[404]);
     } catch {
-      return modelResponseError('Erro ao deletar mercado pelo CNPJ', customError[500]);
+      return modelResponseError('Ops! Erro durante a exlusão do mercado', customError[500]);
     }
   }
 }

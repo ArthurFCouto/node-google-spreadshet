@@ -85,11 +85,14 @@ class userStrategies extends customInterface {
     return user;
   }
 
-  _validateUser(user) {
+  _validateUser(data) {
     const error = [];
+    if (typeof data !== 'object') {
+      data = {};
+    }
     const {
       nomeUsuario, emailUsuario, senhaUsuario, telefoneUsuario,
-    } = user;
+    } = data;
     if (!nomeUsuario || nomeUsuario.replace(/\s/g, '').length === 0) {
       error.push({
         field: 'nomeUsuario',
@@ -138,19 +141,18 @@ class userStrategies extends customInterface {
       const rows = await this._getRows();
       return rows.map((user)=> (modelResponseUser(user)));
     } catch {
-      return modelResponseError('Erro ao buscar todos os usuários ', this._error);
+      return modelResponseError('Ops! Erro ao buscar usuários cadastrados', this._error);
     }
   }
 
   async create(data) {
     try {
-      data = data || {};
       const validate = this._validateUser(data);
       if (validate.length > 0) {
-        return modelResponseError('Erro ao criar usuário', { ...customError[400], data: validate });
+        return modelResponseError('Ops! Não foi possível cadastrar o usuário', { ...customError[400], data: validate });
       }
       if (await this._checkExist(data.emailUsuario)) {
-        return modelResponseError('Email já cadastrado', customError[400]);
+        return modelResponseError('Ops! Este email já cadastrado', customError[400]);
       }
       const sheet = await this._getSheet();
       return sheet.addRow({
@@ -164,12 +166,11 @@ class userStrategies extends customInterface {
       })
         .then((res)=> modelResponseUser(res))
         .catch((error)=> {
-          console.log('Houve um erro ao criar usuário', error);
           this._error = error;
           throw new Error();
         });
     } catch {
-      return modelResponseError('Houve um erro ao criar usuário', this._error);
+      return modelResponseError('Ops! Erro durante o cadastro do usuário', this._error);
     }
   }
 
@@ -179,9 +180,9 @@ class userStrategies extends customInterface {
       if (user) {
         return modelResponseUser(user);
       }
-      return modelResponseError('Erro ao buscar usuário', customError[404]);
+      return modelResponseError(`Ops! O usuário com email ${id} não está cadastrado`, customError[404]);
     } catch {
-      return modelResponseError('Erro ao buscar usuário pelo ID', customError[500]);
+      return modelResponseError('Ops! Erro durante a pesquisa pelo email', customError[500]);
     }
   }
 
@@ -197,11 +198,11 @@ class userStrategies extends customInterface {
           await user.save();
           return modelResponseUser(user);
         }
-        return modelResponseError('Erro ao atualizar usuário', customError[404]);
+        return modelResponseError(`Ops! O usuário com email ${id} não está cadastrado`, customError[404]);
       }
-      return modelResponseError('Erro ao atualizar usuário', { ...customError[400], data: 'Favor enviar o id e os dados corretamente' });
+      return modelResponseError('Ops! Erro ao atualizar o usuário', { ...customError[400], data: 'Enviar o email e os dados corretamente' });
     } catch {
-      return modelResponseError('Erro ao atualizar usuário pelo ID', customError[500]);
+      return modelResponseError('Ops! Erro durante a atualização do usuário', customError[500]);
     }
   }
 
@@ -213,9 +214,9 @@ class userStrategies extends customInterface {
         await user.del();
         return response;
       }
-      return modelResponseError('Erro ao deletar usuário', customError[404]);
+      return modelResponseError(`Ops! O usuário com email ${id} não está cadastrado`, customError[404]);
     } catch {
-      return modelResponseError('Erro ao deletar usuário pelo ID', customError[500]);
+      return modelResponseError('Ops! Erro durante a exclusão do usuário', customError[500]);
     }
   }
 }
