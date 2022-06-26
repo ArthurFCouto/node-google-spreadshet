@@ -13,33 +13,33 @@ async function routes(request, response) {
   const routesCustom = useRouter(request, response);
   routesCustom.use(handleCors);
   routesCustom.use(handleContentTypeJson);
-  routesCustom.get(`${versionUrl}/`, controller.getLogo);
-  routesCustom.get(`${versionUrl}/produto`, productController.getAll);
-  routesCustom.get(`${versionUrl}/produto/buscar`, productController.getByDescription);
+  await routesCustom.get(`${versionUrl}/`, controller.getLogo);
+  await routesCustom.get(`${versionUrl}/produto`, productController.getAll);
+  await routesCustom.get(`${versionUrl}/produto/buscar`, productController.getByDescription);
   /*
     \\d+ <= Definindo que serão aceitos apenas números para o path especificado
   */
-  routesCustom.get(`${versionUrl}/produto/:id(\\d+)`, productController.getById);
-  routesCustom.post(`${versionUrl}/usuario`, userController.save);
-  routesCustom.get(`${versionUrl}/preco`, priceController.getAll);
-  routesCustom.get(`${versionUrl}/preco/:id(\\d+)`, priceController.getById);
-  routesCustom.get(`${versionUrl}/mercado`, marketController.getAll);
-  routesCustom.get(`${versionUrl}/mercado/:cnpj(\\d+)`, marketController.getById);
+  await routesCustom.get(`${versionUrl}/produto/:id(\\d+)`, productController.getById);
+  await routesCustom.post(`${versionUrl}/usuario`, userController.save);
+  await routesCustom.get(`${versionUrl}/preco`, priceController.getAll);
+  await routesCustom.get(`${versionUrl}/preco/:id(\\d+)`, priceController.getById);
+  await routesCustom.get(`${versionUrl}/mercado`, marketController.getAll);
+  await routesCustom.get(`${versionUrl}/mercado/:cnpj(\\d+)`, marketController.getById);
   /*
     Implementar autenticação para os métodos abaixo
   */
-  routesCustom.post(`${versionUrl}/preco`, priceController.save);
-  routesCustom.delete(`${versionUrl}/preco/:id(\\d+)`, priceController.delete);
+  await routesCustom.post(`${versionUrl}/preco`, priceController.save);
+  await routesCustom.delete(`${versionUrl}/preco/:id(\\d+)`, priceController.delete);
   /*
     Implementar autorização para os métodos abaixo
   */
-  routesCustom.get(`${versionUrl}/usuario`, userController.getAll);
-  routesCustom.get(`${versionUrl}/usuario/detalhes`, userController.getById);
-  routesCustom.delete(`${versionUrl}/usuario/detalhes`, userController.delete);
-  routesCustom.delete(`${versionUrl}/produto/:id(\\d+)`, productController.delete);
-  routesCustom.post(`${versionUrl}/mercado`, marketController.save);
-  routesCustom.delete(`${versionUrl}/mercado/:cnpj(\\d+)`, marketController.delete);
-  routesCustom.use(handleRouteNotFound);
+  await routesCustom.get(`${versionUrl}/usuario`, userController.getAll);
+  await routesCustom.get(`${versionUrl}/usuario/detalhes`, userController.getById);
+  await routesCustom.delete(`${versionUrl}/usuario/detalhes`, userController.delete);
+  await routesCustom.delete(`${versionUrl}/produto/:id(\\d+)`, productController.delete);
+  await routesCustom.post(`${versionUrl}/mercado`, marketController.save);
+  await routesCustom.delete(`${versionUrl}/mercado/:cnpj(\\d+)`, marketController.delete);
+  await routesCustom.use(handleRouteNotFound);
 }
 
 function handleError(error, response) {

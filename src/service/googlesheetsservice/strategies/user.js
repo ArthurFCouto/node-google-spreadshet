@@ -93,20 +93,20 @@ class userStrategies extends customInterface {
     const {
       nomeUsuario, emailUsuario, senhaUsuario, telefoneUsuario,
     } = data;
-    if (!nomeUsuario || nomeUsuario.replace(/\s/g, '').length === 0) {
+    if (!nomeUsuario || nomeUsuario.toString().replace(/\s/g, '').length === 0) {
       error.push({
         field: 'nomeUsuario',
         error: 'Campo não enviado ou vazio',
         value: nomeUsuario || '',
       });
     }
-    if (!senhaUsuario || senhaUsuario.replace(/\s/g, '').length === 0) {
+    if (!senhaUsuario || senhaUsuario.toString().replace(/\s/g, '').length === 0) {
       error.push({
         field: 'senhaUsuario',
         error: 'Campo não enviado ou vazio',
         value: senhaUsuario || '',
       });
-    } else if (senhaUsuario.length < 8 || senhaUsuario.length > 12) {
+    } else if (senhaUsuario.toString().length < 8 || senhaUsuario.toString().length > 12) {
       error.push({
         field: 'senhaUsuario',
         error: 'A senha deve ter de 8 a 12 caracteres',
@@ -191,12 +191,16 @@ class userStrategies extends customInterface {
       if (id && data) {
         const user = await this._checkExist(id);
         if (user) {
-          user.nome_usuario = user.nome_usuario !== data.nomeUsuario ? data.nomeUsuario : user.nome_usuario;
-          user.imagem_usuario = user.imagem_usuario !== data.imagemUsuario ? data.imagemUsuario : user.imagem_usuario;
-          user.telefone_usuario = user.telefone_usuario !== data.telefoneUsuario ? data.telefoneUsuario : user.telefone_usuario;
-          user._updatedAt = new Date().toLocaleString('pt-BR', { timeZone: 'UTC' });
-          await user.save();
-          return modelResponseUser(user);
+          const { nomeUsuario, imagemUsuario, telefoneUsuario } = data;
+          if ((nomeUsuario) && (imagemUsuario) && (telefoneUsuario)) {
+            user.nome_usuario = user.nome_usuario !== nomeUsuario ? nomeUsuario : user.nome_usuario;
+            user.imagem_usuario = user.imagem_usuario !== imagemUsuario ? imagemUsuario : user.imagem_usuario;
+            user.telefone_usuario = user.telefone_usuario !== telefoneUsuario ? telefoneUsuario : user.telefone_usuario;
+            user._updatedAt = new Date().toLocaleString('pt-BR', { timeZone: 'UTC' });
+            await user.save();
+            return modelResponseUser(user);
+          }
+          return modelResponseError('Ops! Não foi possível concluir a atualização', { ...customError[400], data: 'Enviar o email, telefone e imagem corretamente' });
         }
         return modelResponseError(`Ops! O usuário com email ${id} não está cadastrado`, customError[404]);
       }

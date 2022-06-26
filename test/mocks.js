@@ -44,7 +44,7 @@ const USER_LIST = [
 ];
 
 const USER_ERROR = {
-  error: 'Erro ao criar usuário',
+  error: 'Ops! Não foi possível cadastrar o usuário',
   details: {
     status: 400,
     statusText: 'Bad request',
@@ -76,10 +76,10 @@ const USER_ERROR = {
 const PRODUCT_EXPECT = {
   id: 0,
   barcodeProduto: 'https://api.cosmos.bluesoft.com.br/products/barcode/D215D0FAC1ACAEF6B65EE7ED9820DD38.png',
-  codigoProduto: '7891910000197',
+  codigoProduto: 7891910000197,
   descricaoProduto: 'AÇÚCAR REFINADO UNIÃO 1KGS',
   imagemProduto: 'https://cdn-cosmos.bluesoft.com.br/products/7891910000197',
-  precoMedioNacional: '5.99',
+  precoMedioNacional: '0.00',
   detalheProduto: 'Açúcares e produtos de confeitaria - Açúcares de cana ou de beterraba e sacarose quimicamente pura, no estado sólido. - Outros: - Outros',
   categoriaProduto: 'Açúcar / Substitutos do Açúcar (Não perecível)',
   marcaProduto: 'UNIAO',
@@ -114,7 +114,7 @@ const PRODUCT_ERROR = {
     status: 400,
     statusText: 'Bad request',
   },
-  error: 'Erro ao cadastrar produto',
+  error: 'Ops! Não foi possível cadastrar o produto',
 };
 
 const PRODUCT_LIST = {
@@ -122,7 +122,10 @@ const PRODUCT_LIST = {
   porPagina: 30,
   totalPagina: 4,
   totalProduto: 103,
-  proximaPagina: 'https://api.cosmos.bluesoft.com.br/products?page=2&query=ACUCAR+REFINADO+UNIAO+1KGS',
+  proximaPagina: {
+    page: 2,
+    query: 'ACUCAR+REFINADO+UNIAO+1KGS',
+  },
   listaProduto: [],
 };
 
@@ -131,7 +134,10 @@ const PRODUTCT_LIST_NEXT = {
   porPagina: 30,
   totalPagina: 4,
   totalProduto: 103,
-  proximaPagina: 'https://api.cosmos.bluesoft.com.br/products?page=3&query=ACUCAR+REFINADO+UNIAO+1KGS',
+  proximaPagina: {
+    page: 3,
+    query: 'ACUCAR+REFINADO+UNIAO+1KGS',
+  },
   listaProduto: [],
 };
 
@@ -179,7 +185,7 @@ const PRICE_ERROR = {
     status: 400,
     statusText: 'Bad request',
   },
-  error: 'Erro ao cadastrar preço',
+  error: 'Ops! Não foi possível cadastrar o preço',
 };
 
 const MARKET = {
@@ -236,7 +242,7 @@ const MARKET_ERROR = {
     status: 400,
     statusText: 'Bad request',
   },
-  error: 'Erro ao cadastrar mercado',
+  error: 'Ops! Não foi possível cadastrar o mercado',
 };
 
 const NOT_FOUND = {
@@ -245,7 +251,16 @@ const NOT_FOUND = {
     status: 404,
     statusText: 'Not found',
   },
-  error: 'Erro ao buscar mercado',
+  error: 'Erro ao buscar...',
+};
+
+const BAD_REQUEST = {
+  details: {
+    data: 'Erro durante a requisição',
+    status: 400,
+    statusText: 'Bad request',
+  },
+  error: 'Erro ao buscar...',
 };
 
 module.exports = {
@@ -264,4 +279,5 @@ module.exports = {
   MARKET_EXPECTED,
   MARKET_ERROR,
   NOT_FOUND,
+  BAD_REQUEST,
 };

@@ -1,3 +1,6 @@
+/* eslint-disable no-extend-native */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable new-cap */
 const { pathToRegexp, match } = require('path-to-regexp');
@@ -5,59 +8,65 @@ const { pathToRegexp, match } = require('path-to-regexp');
 let request = {};
 let response = {};
 
-/*
-  Função que irá converter os dados enviados no body da requisição via POST.
-  O tempo foi definido apenas para fins de teste, ainda é preciso encontrar a melhor maneira de executar este método
-*/
-const handleBodyParser = (callback)=> {
-  let res = [];
+const handleBodyParser = ()=> new Promise((resolve, reject)=> {
+  let raw = [];
   request.on('data', (chunk)=> {
-    res.push(chunk);
-  }).on('end', ()=> {
-    res = Buffer.concat(res).toString();
-    request.rawBody = res;
-    if (res && res.indexOf('{') > -1) {
-      request.body = JSON.parse(res);
-    }
-  });
-  return setTimeout(()=> callback(request, response), 1500);
-};
+    raw.push(chunk);
+  })
+    .on('end', ()=> {
+      try {
+        raw = Buffer.concat(raw).toString();
+        request.rawBody = raw;
+        if (raw && raw.indexOf('{') !== -1) {
+          request.body = JSON.parse(raw);
+        }
+        resolve({});
+      } catch (error) {
+        reject(error);
+      }
+    });
+});
 
-/*
-  Função que irá extrair os parâmetros da URL
-*/
-const handleParams = ()=> {
+const handleParams = (indexOf)=> {
   const { url } = request;
-  const indexOf = url.indexOf('?');
-  const data = indexOf !== -1 && url.slice(indexOf + 1, url.length);
-  if (data) {
-    const list = data.split('&').map((item)=> {
+  const raw = indexOf !== -1 && url.slice(indexOf + 1, url.length);
+  if (raw) {
+    const list = raw.split('&').map((item)=> {
       const [key, value] = item.split('=');
       return `"${key}" : "${value}"`;
     });
-    return JSON.parse(`{${list.join(',')}}`);
+    const paramsJson = JSON.parse(`{${list.join(',')}}`);
+    return paramsJson;
   }
-  return data;
+  return raw;
 };
 
 /*
-  Função que irá extrair os path da URL e os parâmetros
+  Função que irá extrair os PATH da URL e adicionar os parâmetros a requisição
 */
-const handleRegex = (data)=> {
+const handleRegex = (address)=> {
   try {
     const { url } = request;
     const indexOf = url.indexOf('?');
     const src = indexOf !== -1 ? url.slice(0, indexOf) : url;
-    const regexp = pathToRegexp(data);
-    const parameters = match(data);
+    const regexp = pathToRegexp(address);
+    const parameters = match(src);
     const { params } = parameters(src);
-    request.path = params && JSON.parse(JSON.stringify(parameters(src).params));
-    request.params = handleParams();
+    request.path = params && JSON.parse(JSON.stringify(params));
+    request.params = handleParams(indexOf);
     return regexp.test(src);
-  } catch (error) {
-    console.error('Erro no handleRegex', error);
+  } catch {
     return false;
   }
+};
+
+const handleMiddlewares = async (callback)=> {
+  const latestPosition = callback.length - 1;
+  const middlewares = callback.slice(0, latestPosition);
+  for (const middleware of middlewares) {
+    await middleware(request, response);
+  }
+  request._finished = true;
 };
 
 function router(req, res) {
@@ -65,52 +74,86 @@ function router(req, res) {
   response = res;
 }
 
-router.prototype.get = async (url, callback)=> {
-  if (request.method === 'GET' && handleRegex(url)) {
-    request._finished = true;
-    return callback(request, response);
+router.prototype.get = async (address, ...callback)=> {
+  const { _finished, method } = request;
+  if (method === 'GET' && !_finished) {
+    const isMatch = handleRegex(address);
+    if (!isMatch) {
+      return this;
+    }
+    await handleMiddlewares(callback);
+    const controller = callback[callback.length - 1];
+    return controller(request, response);
   }
   return this;
 };
 
-router.prototype.post = async (url, callback)=> {
-  if (request.method === 'POST' && handleRegex(url)) {
-    request._finished = true;
-    // return callback(request, response);
-    return handleBodyParser(callback);
+router.prototype.post = async (address, ...callback)=> {
+  const { _finished, method } = request;
+  if (method === 'POST' && !_finished) {
+    const isMatch = handleRegex(address);
+    if (!isMatch) {
+      return this;
+    }
+    await handleMiddlewares(callback);
+    await handleBodyParser().catch((error)=> error);
+    const controller = callback[callback.length - 1];
+    return controller(request, response);
   }
   return this;
 };
 
-router.prototype.delete = async (url, callback)=> {
-  if (request.method === 'DELETE' && handleRegex(url)) {
-    request._finished = true;
-    return callback(request, response);
+router.prototype.delete = async (address, ...callback)=> {
+  const { _finished, method } = request;
+  if (method === 'DELETE' && !_finished) {
+    const isMatch = handleRegex(address);
+    if (!isMatch) {
+      return this;
+    }
+    await handleMiddlewares(callback);
+    await handleBodyParser().catch((error)=> error);
+    const controller = callback[callback.length - 1];
+    return controller(request, response);
   }
   return this;
 };
 
-router.prototype.put = async (url, callback)=> {
-  if (request.method === 'PUT' && handleRegex(url)) {
-    request._finished = true;
-    return callback(request, response);
+router.prototype.put = async (address, ...callback)=> {
+  const { _finished, method } = request;
+  if (method === 'PUT' && !_finished) {
+    const isMatch = handleRegex(address);
+    if (!isMatch) {
+      return this;
+    }
+    await handleMiddlewares(callback);
+    await handleBodyParser().catch((error)=> error);
+    const controller = callback[callback.length - 1];
+    return controller(request, response);
   }
   return this;
 };
 
-router.prototype.patch = async (url, callback)=> {
-  if (request.method === 'PATCH' && handleRegex(url)) {
-    request._finished = true;
-    return callback(request, response);
+router.prototype.patch = async (address, ...callback)=> {
+  const { _finished, method } = request;
+  if (method === 'PATCH' && !_finished) {
+    const isMatch = handleRegex(address);
+    if (!isMatch) {
+      return this;
+    }
+    await handleMiddlewares(callback);
+    await handleBodyParser().catch((error)=> error);
+    const controller = callback[callback.length - 1];
+    return controller(request, response);
   }
   return this;
 };
 
 /*
-Será chamada somente se o response não foi enviado ao cliente
+Será chamada somente se o response.end() não tiver sido chamado
 */
 router.prototype.use = (callback)=> {
-  if (!request._finished) {
+  const { _finished } = request;
+  if (!_finished) {
     callback(request, response);
   }
 };

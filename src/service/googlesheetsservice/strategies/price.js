@@ -109,7 +109,7 @@ class PriceStrategy extends CustomInterface {
       error.push({
         field: 'precoProduto',
         error: 'Preço do produto não enviado ou inválido',
-        value: codigoProduto || '',
+        value: precoAtual || '',
       });
     }
     return error;

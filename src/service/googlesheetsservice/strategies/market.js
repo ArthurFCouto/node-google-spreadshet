@@ -81,14 +81,14 @@ class marketStrategies extends customInterface {
     const {
       cnpjMercado, nomeMercado, enderecoMercado, numeroMercado, complementoMercado, telefoneMercado, cidadeMercado, cepMercado,
     } = data;
-    if (!nomeMercado || nomeMercado.replace(/\s/g, '').length === 0) {
+    if (!nomeMercado || nomeMercado.toString().replace(/\s/g, '').length === 0) {
       error.push({
         field: 'nomeMercado',
         error: 'Campo não enviado ou vazio',
         value: nomeMercado || '',
       });
     }
-    if (!cidadeMercado || cidadeMercado.replace(/\s/g, '').length === 0) {
+    if (!cidadeMercado || cidadeMercado.toString().replace(/\s/g, '').length === 0) {
       error.push({
         field: 'cidadeMercado',
         error: 'Campo não enviado ou vazio',

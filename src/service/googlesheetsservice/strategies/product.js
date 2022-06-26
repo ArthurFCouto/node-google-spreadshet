@@ -60,11 +60,13 @@ class ProductStrategy extends CustomInterface {
 
   async _checkExist(id) {
     let product;
-    const rows = await this._getRows();
-    for (let i = 0; i < rows.length; i++) {
-      if (rows[i].codigo_produto.toString().toLowerCase() === id.toString().toLowerCase()) {
-        product = rows[i];
-        break;
+    if (typeof id === 'string' || typeof id === 'number') {
+      const rows = await this._getRows();
+      for (let i = 0; i < rows.length; i++) {
+        if (rows[i].codigo_produto.toString().toLowerCase() === id.toString().toLowerCase()) {
+          product = rows[i];
+          break;
+        }
       }
     }
     return product;
@@ -78,14 +80,14 @@ class ProductStrategy extends CustomInterface {
     const {
       precoMedioNacional, detalheProduto, descricaoProduto, codigoProduto,
     } = data;
-    if (!descricaoProduto || descricaoProduto.replace(/\s/g, '').length === 0) {
+    if (!descricaoProduto || descricaoProduto.toString().replace(/\s/g, '').length === 0) {
       error.push({
         field: 'descricaoProduto',
         error: 'Campo não enviado',
         value: '',
       });
     }
-    if (!descricaoProduto || detalheProduto.replace(/\s/g, '').length === 0) {
+    if (!descricaoProduto || detalheProduto.toString().replace(/\s/g, '').length === 0) {
       error.push({
         field: 'detalheProduto',
         error: 'Campo não enviado',
@@ -166,14 +168,16 @@ class ProductStrategy extends CustomInterface {
 
   async getByDescription(description) {
     try {
-      const rows = await this._getRows();
       const product = [];
-      rows.forEach((row)=> {
-        const compare = row.descricao_produto;
-        if (stringIncludes(compare, description)) {
-          product.push(row);
-        }
-      });
+      if (typeof description === 'string' || typeof description === 'number') {
+        const rows = await this._getRows();
+        rows.forEach((row)=> {
+          const compare = row.descricao_produto;
+          if (stringIncludes(compare, description)) {
+            product.push(row);
+          }
+        });
+      }
       return modelResponseProduct(product);
     } catch {
       return modelResponseError('Ops! Erro durante a pesquisa pela descrição', customError[500]);

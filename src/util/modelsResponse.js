@@ -13,7 +13,7 @@ function modelResponseProduct(product, model) {
     const {
       description: descricaoProduto,
       gtin: codigoProduto,
-      avg_price: precoMedioNacional,
+      avg_price: preco,
       barcode_image: barcodeProduto,
       thumbnail: thumbnailProduto,
       ncm,
@@ -26,6 +26,7 @@ function modelResponseProduct(product, model) {
     const detalheProduto = ncm ? ncm.full_description : '';
     const marcaProduto = brand ? brand.name : '';
     const categoriaProduto = gpc ? gpc.description : '';
+    const precoMedioNacional = preco === null ? '0.00' : preco;
     return {
       id: 0,
       descricaoProduto,
@@ -79,12 +80,22 @@ function modelResponseProductList(data, model) {
       products,
     } = data;
     const list_products = products.map((item)=> modelResponseProduct(item, 'cosmos'));
+    const indexOf = next_page.indexOf('?');
+    const paramsRaw = indexOf !== -1 && next_page.slice(indexOf + 1, next_page.length);
+    let params = {};
+    if (paramsRaw) {
+      const list = paramsRaw.split('&').map((item)=> {
+        const [key, value] = item.split('=');
+        return `"${key}" : "${value}"`;
+      });
+      params = JSON.parse(`{${list.join(',')}}`);
+    }
     return {
       atualPagina: current_page,
       porPagina: per_page,
       totalPagina: total_pages,
       totalProduto: total_count,
-      proximaPagina: next_page,
+      proximaPagina: params,
       listaProduto: list_products,
     };
   }
