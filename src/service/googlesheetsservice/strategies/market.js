@@ -6,9 +6,7 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
 /* eslint-disable no-plusplus */
-
 const { GoogleSpreadsheet } = require('google-spreadsheet');
-const ws = require('../../../../worksheet.json');
 const customError = require('../../../util/error');
 const { modelResponseError, modelResponseMarket } = require('../../../util/modelsResponse');
 const customInterface = require('./base/interface');
@@ -24,7 +22,7 @@ class marketStrategies extends customInterface {
 
   async _getDocument() {
     try {
-      const document = new GoogleSpreadsheet(ws.id);
+      const document = new GoogleSpreadsheet(process.env.ID_WORKSHEET);
       await document.useServiceAccountAuth({
         client_email: process.env.CLIENT_EMAIL,
         private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),

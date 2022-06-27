@@ -6,7 +6,6 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-plusplus */
 const { GoogleSpreadsheet } = require('google-spreadsheet');
-const ws = require('../../../../worksheet.json');
 const CustomInterface = require('./base/interface');
 const customError = require('../../../util/error');
 const { modelResponseError, modelResponsePrice } = require('../../../util/modelsResponse');
@@ -24,7 +23,7 @@ class PriceStrategy extends CustomInterface {
 
   async _getDocument() {
     try {
-      const document = new GoogleSpreadsheet(ws.id);
+      const document = new GoogleSpreadsheet(process.env.ID_WORKSHEET);
       await document.useServiceAccountAuth({
         client_email: process.env.CLIENT_EMAIL,
         private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
@@ -107,7 +106,7 @@ class PriceStrategy extends CustomInterface {
     }
     if (!precoAtual || isNaN(precoAtual)) {
       error.push({
-        field: 'precoProduto',
+        field: 'precoAtual',
         error: 'Preço do produto não enviado ou inválido',
         value: precoAtual || '',
       });

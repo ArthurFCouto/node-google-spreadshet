@@ -32,9 +32,6 @@ class CosmosService {
 
   getByDescription(description) {
     if (typeof description === 'string') {
-      /*
-        Remove os caracteres especiais e depois substitui os espaços em branco por '+'.
-      */
       const query = description.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '+');
       const url = `${process.env.COSMOS_ENDPOINT}/products?query=${query}`;
       return handleResults(url);

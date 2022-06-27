@@ -31,6 +31,14 @@ class MarketController {
   }
 
   async save(request, response) {
+    const { user } = request;
+    if (user.role !== 'administrador') {
+      response.writeHead(403);
+      return response.end(JSON.stringify({
+        error: 'Ops! Usuário sem autorização para a operação',
+        details: customError[403],
+      }));
+    }
     const context = new Context(new Market());
     const { body } = request;
     const data = await context.create(body).catch((error)=> error);
@@ -41,6 +49,14 @@ class MarketController {
   }
 
   async delete(request, response) {
+    const { user } = request;
+    if (user.role !== 'administrador') {
+      response.writeHead(403);
+      return response.end(JSON.stringify({
+        error: 'Ops! Usuário sem autorização para a operação',
+        details: customError[403],
+      }));
+    }
     const context = new Context(new Market());
     const { cnpj } = request.path;
     if (cnpj) {

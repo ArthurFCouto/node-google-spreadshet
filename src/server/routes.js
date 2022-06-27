@@ -3,43 +3,45 @@ const productController = require('../controller/productController');
 const userController = require('../controller/userController');
 const priceController = require('../controller/priceController');
 const marketController = require('../controller/marketController');
-const { handleContentTypeJson, handleCors, handleRouteNotFound } = require('../middlewares');
+const {
+  handleAuth, handleContentTypeJson, handleCors, handleRouteNotFound,
+} = require('../middlewares');
 const useRouter = require('../hooks/routes');
 const customError = require('../util/error');
-const config = require('./config');
 
 async function routes(request, response) {
-  const { versionUrl } = config;
-  const routesCustom = useRouter(request, response);
-  routesCustom.use(handleCors);
-  routesCustom.use(handleContentTypeJson);
-  await routesCustom.get(`${versionUrl}/`, controller.getLogo);
-  await routesCustom.get(`${versionUrl}/produto`, productController.getAll);
-  await routesCustom.get(`${versionUrl}/produto/buscar`, productController.getByDescription);
+  const customRoutes = useRouter(request, response);
+  customRoutes.use(handleCors);
+  customRoutes.use(handleContentTypeJson);
   /*
     \\d+ <= Definindo que serão aceitos apenas números para o path especificado
+    Os métodos abaixo não requerem autenticação
   */
-  await routesCustom.get(`${versionUrl}/produto/:id(\\d+)`, productController.getById);
-  await routesCustom.post(`${versionUrl}/usuario`, userController.save);
-  await routesCustom.get(`${versionUrl}/preco`, priceController.getAll);
-  await routesCustom.get(`${versionUrl}/preco/:id(\\d+)`, priceController.getById);
-  await routesCustom.get(`${versionUrl}/mercado`, marketController.getAll);
-  await routesCustom.get(`${versionUrl}/mercado/:cnpj(\\d+)`, marketController.getById);
+  await customRoutes.get('/', controller.getLogo);
+  await customRoutes.get('/produto', productController.getAll);
+  await customRoutes.get('/produto/:id(\\d+)', productController.getById);
+  await customRoutes.get('/produto/buscar', productController.getByDescription);
+  await customRoutes.post('/usuario', userController.save);
+  await customRoutes.post('/login', userController.login);
+  await customRoutes.get('/preco', priceController.getAll);
+  await customRoutes.get('/preco/:id(\\d+)', priceController.getById);
+  await customRoutes.get('/mercado', marketController.getAll);
+  await customRoutes.get('/mercado/:cnpj(\\d+)', marketController.getById);
   /*
-    Implementar autenticação para os métodos abaixo
+    Os métodos abaixo requerem autenticação
   */
-  await routesCustom.post(`${versionUrl}/preco`, priceController.save);
-  await routesCustom.delete(`${versionUrl}/preco/:id(\\d+)`, priceController.delete);
+  await customRoutes.post('/preco', handleAuth, priceController.save);
+  await customRoutes.delete('/preco/:id(\\d+)', handleAuth, priceController.delete);
   /*
-    Implementar autorização para os métodos abaixo
+    Os métodos abaixo requerem autenticação e autorização
   */
-  await routesCustom.get(`${versionUrl}/usuario`, userController.getAll);
-  await routesCustom.get(`${versionUrl}/usuario/detalhes`, userController.getById);
-  await routesCustom.delete(`${versionUrl}/usuario/detalhes`, userController.delete);
-  await routesCustom.delete(`${versionUrl}/produto/:id(\\d+)`, productController.delete);
-  await routesCustom.post(`${versionUrl}/mercado`, marketController.save);
-  await routesCustom.delete(`${versionUrl}/mercado/:cnpj(\\d+)`, marketController.delete);
-  await routesCustom.use(handleRouteNotFound);
+  await customRoutes.get('/usuario', handleAuth, userController.getAll);
+  await customRoutes.get('/usuario/detalhes', handleAuth, userController.getById);
+  await customRoutes.delete('/usuario', handleAuth, userController.delete);
+  await customRoutes.delete('/produto/:id(\\d+)', handleAuth, productController.delete);
+  await customRoutes.post('/mercado', handleAuth, marketController.save);
+  await customRoutes.delete('/mercado/:cnpj(\\d+)', handleAuth, marketController.delete);
+  customRoutes.use(handleRouteNotFound);
 }
 
 function handleError(error, response) {

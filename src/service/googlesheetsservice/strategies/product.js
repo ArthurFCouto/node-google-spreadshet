@@ -5,11 +5,11 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-plusplus */
 const { GoogleSpreadsheet } = require('google-spreadsheet');
-const ws = require('../../../../worksheet.json');
 const CustomInterface = require('./base/interface');
 const { stringIncludes } = require('../../../util');
 const customError = require('../../../util/error');
 const { modelResponseError, modelResponseProduct } = require('../../../util/modelsResponse');
+
 require('dotenv').config();
 
 class ProductStrategy extends CustomInterface {
@@ -21,7 +21,7 @@ class ProductStrategy extends CustomInterface {
 
   async _getDocument() {
     try {
-      const document = new GoogleSpreadsheet(ws.id);
+      const document = new GoogleSpreadsheet(process.env.ID_WORKSHEET);
       await document.useServiceAccountAuth({
         client_email: process.env.CLIENT_EMAIL,
         private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),

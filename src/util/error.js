@@ -4,6 +4,11 @@ const customError = {
     statusText: 'Bad request',
     data: 'Erro durante a requisição',
   },
+  401: {
+    status: 401,
+    statusText: 'Unauthorized',
+    data: 'Autenticação necessária',
+  },
   403: {
     status: 403,
     statusText: 'Forbidden',

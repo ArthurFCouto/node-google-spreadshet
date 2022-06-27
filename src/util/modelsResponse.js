@@ -117,14 +117,16 @@ function modelResponseUser(user) {
     imagem_usuario: imagemUsuario,
     senha_usuario: senhaUsuario,
     telefone_usuario: telefoneUsuario,
+    role_usuario: roleUsuario,
   } = user;
   return {
     id: 0,
     emailUsuario,
     nomeUsuario,
     imagemUsuario,
-    senhaUsuario: '********',
+    senhaUsuario,
     telefoneUsuario,
+    roleUsuario,
   };
 }
 

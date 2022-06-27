@@ -6,9 +6,8 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
 /* eslint-disable no-plusplus */
-
 const { GoogleSpreadsheet } = require('google-spreadsheet');
-const ws = require('../../../../worksheet.json');
+const bcrypt = require('bcryptjs');
 const customError = require('../../../util/error');
 const { modelResponseUser, modelResponseError } = require('../../../util/modelsResponse');
 const customInterface = require('./base/interface');
@@ -30,7 +29,7 @@ class userStrategies extends customInterface {
       Propriedade private_key com replace, para evitar problemas pois está no arquivo .env
     */
     try {
-      const document = new GoogleSpreadsheet(ws.id);
+      const document = new GoogleSpreadsheet(process.env.ID_WORKSHEET);
       await document.useServiceAccountAuth({
         client_email: process.env.CLIENT_EMAIL,
         private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
@@ -73,6 +72,9 @@ class userStrategies extends customInterface {
     }
   }
 
+  /*
+    Verifica se o usuário existe, e o retorna caso positivo
+  */
   async _checkExist(id) {
     let user;
     const rows = await this._getRows();
@@ -85,6 +87,9 @@ class userStrategies extends customInterface {
     return user;
   }
 
+  /*
+    Valida as informações do usuário antes de salvar
+  */
   _validateUser(data) {
     const error = [];
     if (typeof data !== 'object') {
@@ -159,8 +164,9 @@ class userStrategies extends customInterface {
         nome_usuario: data.nomeUsuario,
         email_usuario: data.emailUsuario,
         telefone_usuario: data.telefoneUsuario,
-        senha_usuario: data.senhaUsuario,
+        senha_usuario: await bcrypt.hash(data.senhaUsuario, 8),
         imagem_usuario: data.imagemUsuario || '',
+        role_usuario: 'usuario',
         _createdAt: new Date().toLocaleString('pt-BR', { timeZone: 'UTC' }),
         _updatedAt: new Date().toLocaleString('pt-BR', { timeZone: 'UTC' }),
       })
