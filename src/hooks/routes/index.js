@@ -74,14 +74,14 @@ const handleMiddlewares = async (callback)=> {
   const middlewares = callback.slice(0, latestPosition);
   for (const middleware of middlewares) {
     await middleware(request, response);
-    if (response.finished === true) {
+    if (response.finished === true || request._finished === true) {
       break;
     }
   }
-  // request._finished = true;
-  if (response.finished === true) {
+  if (response.finished === true || request._finished === true) {
     return;
   }
+  request._finished = true;
   const controller = callback[callback.length - 1];
   return controller(request, response);
 };
@@ -159,9 +159,9 @@ router.prototype.patch = async (address, ...callback)=> {
   Será chamada somente se o response.end() não tiver sido chamado
 */
 router.prototype.use = (callback)=> {
-  // const { _finished } = request;
-  const { finished } = request;
-  if (!finished) {
+  const { _finished } = request;
+  const { finished } = response;
+  if (!finished && !_finished) {
     callback(request, response);
   }
 };

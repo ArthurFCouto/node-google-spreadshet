@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable consistent-return */
 const jwt = require('jsonwebtoken');
 const { Context, User } = require('../../service/googlesheetsservice');
@@ -21,6 +22,7 @@ async function handleAuthMiddleware(request, response) {
     }
     request.user = user;
   } catch {
+    request._finished = true;
     response.writeHead(400);
     return response.end(JSON.stringify({
       error: 'Ops! Houve um erro durante a autenticação',
