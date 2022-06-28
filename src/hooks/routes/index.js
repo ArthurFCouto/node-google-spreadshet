@@ -17,6 +17,8 @@ let response = {};
 */
 const handleBodyParser = ()=> new Promise((resolve, reject)=> {
   let raw = [];
+  request.rawBody = '';
+  request.body = {};
   request.on('data', (chunk)=> {
     raw.push(chunk);
   })
@@ -27,7 +29,7 @@ const handleBodyParser = ()=> new Promise((resolve, reject)=> {
         if (raw && raw.indexOf('{') !== -1) {
           request.body = JSON.parse(raw);
         }
-        resolve({});
+        resolve(JSON.parse(raw));
       } catch (error) {
         reject(error);
       }

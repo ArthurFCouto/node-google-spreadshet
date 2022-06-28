@@ -10,29 +10,21 @@ const config = require('../../server/config');
 const { roles } = config;
 
 class UserController {
-  static _checkAdministrador(request, response) {
-    response.writeHead(403);
-    return response.end(JSON.stringify({
-      error: 'Ops! Usuário sem autorização para a operação',
-      details: customError[403],
-    }));
-  }
-
-  static _checkLogin(request, response) {
-    response.writeHead(401);
-    return response.end(JSON.stringify({
-      error: 'Ops! Usuário não autenticado',
-      details: customError[401],
-    }));
-  }
-
   async getAll(request, response) {
     const { user } = request;
     if (!user.role) {
-      return this._checkLogin(request, response);
+      response.writeHead(401);
+      return response.end(JSON.stringify({
+        error: 'Ops! Usuário não autenticado',
+        details: customError[401],
+      }));
     }
     if (user.role !== roles.admin) {
-      return this._checkAdministrador(request, response);
+      response.writeHead(403);
+      return response.end(JSON.stringify({
+        error: 'Ops! Usuário sem autorização para a operação',
+        details: customError[403],
+      }));
     }
     const context = new Context(new User());
     const data = await context.getAll().catch((error)=> error);
@@ -45,10 +37,18 @@ class UserController {
   async getById(request, response) {
     const { user } = request;
     if (!user.role) {
-      return this._checkLogin(request, response);
+      response.writeHead(401);
+      return response.end(JSON.stringify({
+        error: 'Ops! Usuário não autenticado',
+        details: customError[401],
+      }));
     }
     if (user.role !== roles.admin) {
-      return this._checkAdministrador(request, response);
+      response.writeHead(403);
+      return response.end(JSON.stringify({
+        error: 'Ops! Usuário sem autorização para a operação',
+        details: customError[403],
+      }));
     }
     const context = new Context(new User());
     const { email } = request.params;
@@ -85,10 +85,18 @@ class UserController {
   async delete(request, response) {
     const { user } = request;
     if (!user.role) {
-      return this._checkLogin(request, response);
+      response.writeHead(401);
+      return response.end(JSON.stringify({
+        error: 'Ops! Usuário não autenticado',
+        details: customError[401],
+      }));
     }
     if (user.role !== roles.admin) {
-      return this._checkAdministrador(request, response);
+      response.writeHead(403);
+      return response.end(JSON.stringify({
+        error: 'Ops! Usuário sem autorização para a operação',
+        details: customError[403],
+      }));
     }
     const context = new Context(new User());
     const { email } = request.params;
@@ -117,8 +125,8 @@ class UserController {
     }
     try {
       const context = new Context(new User());
-      const user = await context.getById(email);
-      if (user) {
+      const user = await context.getById(email).catch((error)=> error);
+      if (!user.error) {
         if (await bcrypt.compare(senha, user.senhaUsuario)) {
           const {
             nomeUsuario, emailUsuario, roleUsuario,

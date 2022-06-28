@@ -9,22 +9,6 @@ const config = require('../../server/config');
 const { roles } = config;
 
 class ProductController {
-  static _checkAdministrador(request, response) {
-    response.writeHead(403);
-    return response.end(JSON.stringify({
-      error: 'Ops! Usuário sem autorização para a operação',
-      details: customError[403],
-    }));
-  }
-
-  static _checkLogin(request, response) {
-    response.writeHead(401);
-    return response.end(JSON.stringify({
-      error: 'Ops! Usuário não autenticado',
-      details: customError[401],
-    }));
-  }
-
   async getAll(request, response) {
     const context = new Context(new Product());
     const data = await context.getAll().catch((error)=> error);
@@ -94,14 +78,22 @@ class ProductController {
   async delete(request, response) {
     const { user } = request;
     if (!user.role) {
-      return this._checkLogin(request, response);
+      response.writeHead(401);
+      return response.end(JSON.stringify({
+        error: 'Ops! Usuário não autenticado',
+        details: customError[401],
+      }));
     }
     if (user.role !== roles.admin) {
-      return this._checkAdministrador(request, response);
+      response.writeHead(403);
+      return response.end(JSON.stringify({
+        error: 'Ops! Usuário sem autorização para a operação',
+        details: customError[403],
+      }));
     }
     const context = new Context(new Product());
     const { id } = request.path;
-    if (id && !isNaN(id)) {
+    if (id) {
       const data = await context.delete(id).catch((error)=> error);
       if (data && data.error) {
         response.writeHead(data.details.status);

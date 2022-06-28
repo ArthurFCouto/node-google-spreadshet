@@ -5,14 +5,6 @@ const { Context, Price } = require('../../service/googlesheetsservice');
 const customError = require('../../util/error');
 
 class PriceController {
-  static _checkLogin(request, response) {
-    response.writeHead(401);
-    return response.end(JSON.stringify({
-      error: 'Ops! Usuário não autenticado',
-      details: customError[401],
-    }));
-  }
-
   async getAll(request, response) {
     const context = new Context(new Price());
     const data = await context.getAll().catch((error)=> error);
@@ -42,7 +34,11 @@ class PriceController {
   async save(request, response) {
     const { user } = request;
     if (!user.role) {
-      return this._checkLogin(request, response);
+      response.writeHead(401);
+      return response.end(JSON.stringify({
+        error: 'Ops! Usuário não autenticado',
+        details: customError[401],
+      }));
     }
     const context = new Context(new Price());
     const { body } = request;
@@ -56,7 +52,11 @@ class PriceController {
   async delete(request, response) {
     const { user } = request;
     if (!user.role) {
-      return this._checkLogin(request, response);
+      response.writeHead(401);
+      return response.end(JSON.stringify({
+        error: 'Ops! Usuário não autenticado',
+        details: customError[401],
+      }));
     }
     const { id } = request.path;
     if (id) {
