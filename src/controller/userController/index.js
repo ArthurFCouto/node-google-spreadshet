@@ -27,9 +27,12 @@ class UserController {
       }));
     }
     const context = new Context(new User());
-    const data = await context.getAll().catch((error)=> error);
+    let data = await context.getAll().catch((error)=> error);
     if (data && data.error) {
       response.writeHead(data.details.status);
+    }
+    if (Array.isArray(data) && data.length > 0) {
+      data = data.map((item)=> ({ ...item, senhaUsuario: '********' }));
     }
     return response.end(JSON.stringify(data));
   }
@@ -57,6 +60,9 @@ class UserController {
       if (data && data.error) {
         response.writeHead(data.details.status);
       }
+      if (data.id === 0) {
+        data.senhaUsuario = '********';
+      }
       return response.end(JSON.stringify(data));
     }
     response.writeHead(404);
@@ -75,7 +81,7 @@ class UserController {
       return response.end(JSON.stringify(data));
     }
     return response.end(JSON.stringify({
-      usuario: data,
+      usuario: { ...data, senhaUsuario: '********' },
       token: jwt.sign({ email: data.emailUsuario, role: data.roleUsuario }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRESIN,
       }),
@@ -104,6 +110,9 @@ class UserController {
       const data = await context.delete(email).catch((error)=> error);
       if (data && data.error) {
         response.writeHead(data.details.status);
+      }
+      if (data.id === 0) {
+        data.senhaUsuario = '********';
       }
       return response.end(JSON.stringify(data));
     }
