@@ -7,4 +7,8 @@ module.exports = {
     },
   },
   versionUrl: '/api/v1',
+  roles: {
+    admin: 'administrador',
+    user: 'usuario',
+  },
 };

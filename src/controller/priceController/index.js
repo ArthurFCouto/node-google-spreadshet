@@ -5,7 +5,7 @@ const { Context, Price } = require('../../service/googlesheetsservice');
 const customError = require('../../util/error');
 
 class PriceController {
-  _checkLogin(request, response) {
+  static _checkLogin(request, response) {
     response.writeHead(401);
     return response.end(JSON.stringify({
       error: 'Ops! Usuário não autenticado',

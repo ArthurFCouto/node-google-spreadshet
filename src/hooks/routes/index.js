@@ -3,7 +3,6 @@
 /* eslint-disable no-extend-native */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
-/* eslint-disable no-underscore-dangle */
 /* eslint-disable new-cap */
 const { pathToRegexp, match } = require('path-to-regexp');
 const config = require('../../server/config');
@@ -59,7 +58,7 @@ const handleRegex = (address)=> {
     const indexOf = url.indexOf('?');
     const src = indexOf !== -1 ? url.slice(0, indexOf) : url;
     const regexp = pathToRegexp(address);
-    const paths = match(src);
+    const paths = match(address);
     const { params: path } = paths(src);
     request.path = path && JSON.parse(JSON.stringify(path));
     request.params = handleParams(indexOf);
@@ -74,14 +73,13 @@ const handleMiddlewares = async (callback)=> {
   const middlewares = callback.slice(0, latestPosition);
   for (const middleware of middlewares) {
     await middleware(request, response);
-    if (response.finished === true || request._finished === true) {
+    if (response.finished === true) {
       break;
     }
   }
-  if (response.finished === true || request._finished === true) {
+  if (response.finished === true) {
     return;
   }
-  request._finished = true;
   const controller = callback[callback.length - 1];
   return controller(request, response);
 };
@@ -92,8 +90,9 @@ function router(req, res) {
 }
 
 router.prototype.get = (address, ...callback)=> {
-  const { _finished, method } = request;
-  if (method === 'GET' && !_finished) {
+  const { method } = request;
+  const { finished } = response;
+  if (method === 'GET' && !finished) {
     const isMatch = handleRegex(address);
     if (!isMatch) {
       return this;
@@ -104,8 +103,9 @@ router.prototype.get = (address, ...callback)=> {
 };
 
 router.prototype.post = async (address, ...callback)=> {
-  const { _finished, method } = request;
-  if (method === 'POST' && !_finished) {
+  const { method } = request;
+  const { finished } = response;
+  if (method === 'POST' && !finished) {
     const isMatch = handleRegex(address);
     if (!isMatch) {
       return this;
@@ -117,8 +117,9 @@ router.prototype.post = async (address, ...callback)=> {
 };
 
 router.prototype.delete = async (address, ...callback)=> {
-  const { _finished, method } = request;
-  if (method === 'DELETE' && !_finished) {
+  const { method } = request;
+  const { finished } = response;
+  if (method === 'DELETE' && !finished) {
     const isMatch = handleRegex(address);
     if (!isMatch) {
       return this;
@@ -130,8 +131,9 @@ router.prototype.delete = async (address, ...callback)=> {
 };
 
 router.prototype.put = async (address, ...callback)=> {
-  const { _finished, method } = request;
-  if (method === 'PUT' && !_finished) {
+  const { method } = request;
+  const { finished } = response;
+  if (method === 'PUT' && !finished) {
     const isMatch = handleRegex(address);
     if (!isMatch) {
       return this;
@@ -143,8 +145,9 @@ router.prototype.put = async (address, ...callback)=> {
 };
 
 router.prototype.patch = async (address, ...callback)=> {
-  const { _finished, method } = request;
-  if (method === 'PATCH' && !_finished) {
+  const { method } = request;
+  const { finished } = response;
+  if (method === 'PATCH' && !finished) {
     const isMatch = handleRegex(address);
     if (!isMatch) {
       return this;
@@ -159,9 +162,8 @@ router.prototype.patch = async (address, ...callback)=> {
   Será chamada somente se o response.end() não tiver sido chamado
 */
 router.prototype.use = (callback)=> {
-  const { _finished } = request;
   const { finished } = response;
-  if (!finished && !_finished) {
+  if (!finished) {
     callback(request, response);
   }
 };

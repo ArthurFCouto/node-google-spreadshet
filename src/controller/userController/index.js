@@ -5,9 +5,12 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { Context, User } = require('../../service/googlesheetsservice');
 const customError = require('../../util/error');
+const config = require('../../server/config');
+
+const { roles } = config;
 
 class UserController {
-  _checkAdministrador(request, response) {
+  static _checkAdministrador(request, response) {
     response.writeHead(403);
     return response.end(JSON.stringify({
       error: 'Ops! Usuário sem autorização para a operação',
@@ -15,7 +18,7 @@ class UserController {
     }));
   }
 
-  _checkLogin(request, response) {
+  static _checkLogin(request, response) {
     response.writeHead(401);
     return response.end(JSON.stringify({
       error: 'Ops! Usuário não autenticado',
@@ -28,7 +31,7 @@ class UserController {
     if (!user.role) {
       return this._checkLogin(request, response);
     }
-    if (user.role !== 'administrador') {
+    if (user.role !== roles.admin) {
       return this._checkAdministrador(request, response);
     }
     const context = new Context(new User());
@@ -44,7 +47,7 @@ class UserController {
     if (!user.role) {
       return this._checkLogin(request, response);
     }
-    if (user.role !== 'administrador') {
+    if (user.role !== roles.admin) {
       return this._checkAdministrador(request, response);
     }
     const context = new Context(new User());
@@ -84,7 +87,7 @@ class UserController {
     if (!user.role) {
       return this._checkLogin(request, response);
     }
-    if (user.role !== 'administrador') {
+    if (user.role !== roles.admin) {
       return this._checkAdministrador(request, response);
     }
     const context = new Context(new User());

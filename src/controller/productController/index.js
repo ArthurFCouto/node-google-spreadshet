@@ -4,9 +4,12 @@
 const cosmosService = require('../../service/cosmosservice');
 const { Context, Product } = require('../../service/googlesheetsservice');
 const customError = require('../../util/error');
+const config = require('../../server/config');
+
+const { roles } = config;
 
 class ProductController {
-  _checkAdministrador(request, response) {
+  static _checkAdministrador(request, response) {
     response.writeHead(403);
     return response.end(JSON.stringify({
       error: 'Ops! Usuário sem autorização para a operação',
@@ -14,7 +17,7 @@ class ProductController {
     }));
   }
 
-  _checkLogin(request, response) {
+  static _checkLogin(request, response) {
     response.writeHead(401);
     return response.end(JSON.stringify({
       error: 'Ops! Usuário não autenticado',
@@ -93,7 +96,7 @@ class ProductController {
     if (!user.role) {
       return this._checkLogin(request, response);
     }
-    if (user.role !== 'administrador') {
+    if (user.role !== roles.admin) {
       return this._checkAdministrador(request, response);
     }
     const context = new Context(new Product());

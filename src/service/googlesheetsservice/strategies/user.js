@@ -11,6 +11,9 @@ const bcrypt = require('bcryptjs');
 const customError = require('../../../util/error');
 const { modelResponseUser, modelResponseError } = require('../../../util/modelsResponse');
 const customInterface = require('./base/interface');
+const config = require('../../../server/config');
+
+const { roles } = config;
 
 require('dotenv').config();
 
@@ -166,7 +169,7 @@ class userStrategies extends customInterface {
         telefone_usuario: data.telefoneUsuario,
         senha_usuario: await bcrypt.hash(data.senhaUsuario, 8),
         imagem_usuario: data.imagemUsuario || '',
-        role_usuario: 'usuario',
+        role_usuario: roles.user,
         _createdAt: new Date().toLocaleString('pt-BR', { timeZone: 'UTC' }),
         _updatedAt: new Date().toLocaleString('pt-BR', { timeZone: 'UTC' }),
       })

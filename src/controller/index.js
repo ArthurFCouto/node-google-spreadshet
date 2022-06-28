@@ -1,14 +1,13 @@
+/* eslint-disable class-methods-use-this */
 const fs = require('fs');
 const path = require('path');
 const { modelResponseError } = require('../util/modelsResponse');
 const customError = require('../util/error');
-
 /*
   Função criada com o unico intuido de trabalhar a leitura de arquivos e disponibilizar ao cliente
 */
-
 class Controller {
-  static async getLogo(request, response) {
+  async getLogo(request, response) {
     const source = path.resolve(__dirname, '..', '..', 'public', 'logo.png');
     try {
       const image = fs.readFileSync(source, (error, data)=> {

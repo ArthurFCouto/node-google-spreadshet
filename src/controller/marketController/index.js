@@ -1,9 +1,29 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-restricted-globals */
 /* eslint-disable class-methods-use-this */
 const { Context, Market } = require('../../service/googlesheetsservice');
 const customError = require('../../util/error');
+const config = require('../../server/config');
+
+const { roles } = config;
 
 class MarketController {
+  static _checkAdministrador(request, response) {
+    response.writeHead(403);
+    return response.end(JSON.stringify({
+      error: 'Ops! Usuário sem autorização para a operação',
+      details: customError[403],
+    }));
+  }
+
+  static _checkLogin(request, response) {
+    response.writeHead(401);
+    return response.end(JSON.stringify({
+      error: 'Ops! Usuário não autenticado',
+      details: customError[401],
+    }));
+  }
+
   async getAll(request, response) {
     const context = new Context(new Market());
     const data = await context.getAll().catch((error)=> error);
@@ -32,12 +52,11 @@ class MarketController {
 
   async save(request, response) {
     const { user } = request;
-    if (user.role !== 'administrador') {
-      response.writeHead(403);
-      return response.end(JSON.stringify({
-        error: 'Ops! Usuário sem autorização para a operação',
-        details: customError[403],
-      }));
+    if (!user.role) {
+      return this._checkLogin(request, response);
+    }
+    if (user.role !== roles.admin) {
+      return this._checkAdministrador(request, response);
     }
     const context = new Context(new Market());
     const { body } = request;
@@ -50,12 +69,11 @@ class MarketController {
 
   async delete(request, response) {
     const { user } = request;
-    if (user.role !== 'administrador') {
-      response.writeHead(403);
-      return response.end(JSON.stringify({
-        error: 'Ops! Usuário sem autorização para a operação',
-        details: customError[403],
-      }));
+    if (!user.role) {
+      return this._checkLogin(request, response);
+    }
+    if (user.role !== roles.admin) {
+      return this._checkAdministrador(request, response);
     }
     const context = new Context(new Market());
     const { cnpj } = request.path;
