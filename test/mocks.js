@@ -5,6 +5,7 @@ const USER = {
   telefoneUsuario: '38999731482',
   senhaUsuario: '12345678',
   imagemUsuario: '',
+  roleUsuario: 'usuario',
 };
 
 const USER_FOR_UPDATE = {
@@ -14,24 +15,18 @@ const USER_FOR_UPDATE = {
   telefoneUsuario: '38998628103',
   senhaUsuario: '87654321',
   imagemUsuario: 'https://source.unsplash.com/640x640/?user',
+  roleUsuario: 'usuario',
 };
 
 const USER_LIST = [
   {
     id: 0,
-    nomeUsuario: 'Arthur',
-    emailUsuario: 'arthur@gmail.com',
+    nomeUsuario: 'Arthur Couto',
+    emailUsuario: 'arthurfcouto@gmail.com',
     telefoneUsuario: '38999414205',
     senhaUsuario: '********',
-    imagemUsuario: 'https://source.unsplash.com/640x640/?user',
-  },
-  {
-    id: 0,
-    nomeUsuario: 'Mariah',
-    emailUsuario: 'mariah@gmail.com',
-    telefoneUsuario: '38998628103',
-    senhaUsuario: '********',
-    imagemUsuario: 'https://source.unsplash.com/640x640/?user',
+    imagemUsuario: '',
+    roleUsuario: 'administrador',
   },
   {
     id: 0,
@@ -40,6 +35,7 @@ const USER_LIST = [
     telefoneUsuario: '38998628103',
     senhaUsuario: '********',
     imagemUsuario: 'https://source.unsplash.com/640x640/?user',
+    roleUsuario: 'usuario',
   },
 ];
 
@@ -77,7 +73,7 @@ const PRODUCT_EXPECT = {
   id: 0,
   barcodeProduto: 'https://api.cosmos.bluesoft.com.br/products/barcode/D215D0FAC1ACAEF6B65EE7ED9820DD38.png',
   codigoProduto: 7891910000197,
-  descricaoProduto: 'AÇÚCAR REFINADO UNIÃO 1KGS',
+  descricaoProduto: 'AÇÚCAR REFINADO UNIÃO 1KG',
   imagemProduto: 'https://cdn-cosmos.bluesoft.com.br/products/7891910000197',
   precoMedioNacional: '0.00',
   detalheProduto: 'Açúcares e produtos de confeitaria - Açúcares de cana ou de beterraba e sacarose quimicamente pura, no estado sólido. - Outros: - Outros',
@@ -152,7 +148,7 @@ const PRODUTCT_LIST_GOOGLE = {
 
 const PRICE_ACTUAL = {
   codigoProduto: '7891024134702',
-  emailUsuario: 'arthur@gmail.com',
+  emailUsuario: 'arthurfcouto@gmail.com',
   precoAtual: '4.49',
   cnpjMercado: '06981180000116',
   atualizadoEm: '',
@@ -177,7 +173,7 @@ const PRICE_ERROR = {
         value: '',
       },
       {
-        field: 'precoProduto',
+        field: 'precoAtual',
         error: 'Preço do produto não enviado ou inválido',
         value: '',
       },

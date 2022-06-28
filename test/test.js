@@ -24,7 +24,7 @@ const {
   BAD_REQUEST,
 } = require('./mocks');
 
-describe.only('Cosmos Service', function () {
+describe('Cosmos Service', function () {
   this.timeout(10000);
   const page = 2;
   const query = 'ACUCAR+REFINADO+UNIAO+1KGS';
@@ -78,22 +78,23 @@ describe('Testando o design strategies - Usuários', function () {
 
   it('Verificando o método de cadastro de usuários', async ()=> {
     const result = await context.create(USER).catch((error)=> error);
-    assert.deepEqual(result, { ...USER, senhaUsuario });
+    assert.deepEqual({ ...result, senhaUsuario }, { ...USER, senhaUsuario });
   });
 
   it('Atualizando um usuário pelo email', async ()=> {
     const result = await context.update(USER.emailUsuario, USER_FOR_UPDATE).catch((error)=> error);
-    assert.deepEqual(result, { ...USER_FOR_UPDATE, senhaUsuario });
+    assert.deepEqual({ ...result, senhaUsuario }, { ...USER_FOR_UPDATE, senhaUsuario });
   });
 
   it('Buscando todos os usuários cadastrados', async ()=> {
     const result = await context.getAll().catch((error)=> error);
-    assert.deepEqual(result[2], { ...USER_FOR_UPDATE, senhaUsuario });
+    const user = result[0];
+    assert.deepEqual({ ...user, senhaUsuario }, { ...USER_LIST[0], senhaUsuario });
   });
 
   it('Verificando o método de exclusão de usuário', async ()=> {
     const result = await context.delete(USER_FOR_UPDATE.emailUsuario).catch((error)=> error);
-    assert.deepEqual(result, { ...USER_FOR_UPDATE, senhaUsuario });
+    assert.deepEqual({ ...result, senhaUsuario }, { ...USER_FOR_UPDATE, senhaUsuario });
   });
 
   it('Verificando se retorna um erro default', async ()=> {
@@ -103,7 +104,7 @@ describe('Testando o design strategies - Usuários', function () {
 
   it('Buscando um usuário pelo e-mail', async ()=> {
     const result = await context.getById(USER_LIST[0].emailUsuario).catch((error)=> error);
-    assert.deepEqual(result, USER_LIST[0]);
+    assert.deepEqual({ ...result, senhaUsuario }, { ...USER_LIST[0], senhaUsuario });
   });
 });
 
@@ -165,6 +166,7 @@ describe('Testando o design strategies - Preços', function () {
   const context = new Context(new Price());
   const precoAtual = '6.25';
   const atualizadoEm = '';
+  const codigoProduto = '7891024134702';
 
   it('Verifica o método de validação do cadastro de preços', async ()=> {
     const result = await context.create({}).catch(((erro)=> erro));
@@ -191,7 +193,7 @@ describe('Testando o design strategies - Preços', function () {
   it('Busca todos os preços cadastrados para um código de produto', async ()=> {
     const result = await context.getById(PRICE_ACTUAL.codigoProduto).catch(((erro)=> erro));
     const expected = result[0];
-    const price = expected[PRICE_ACTUAL.codigoProduto];
+    const price = expected[codigoProduto];
     assert.deepEqual({ ...price[0], atualizadoEm }, { ...PRICE_ACTUAL, precoAtual });
   });
 
