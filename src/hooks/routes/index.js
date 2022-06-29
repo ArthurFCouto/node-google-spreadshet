@@ -161,7 +161,7 @@ router.prototype.patch = async (address, ...callback)=> {
 };
 
 /*
-  Será chamada somente se o response.end() não tiver sido chamado
+  Será executado somente se o response.end() não tiver sido chamado
 */
 router.prototype.use = (callback)=> {
   const { finished } = response;

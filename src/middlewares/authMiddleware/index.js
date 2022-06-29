@@ -14,8 +14,8 @@ async function handleAuthMiddleware(request, response) {
       const context = new Context(new User());
       const [, token] = authorization.split(' ');
       const decoded = await jwt.verify(token, process.env.JWT_SECRET);
-      const existUser = await context.getById(decoded.email);
-      if (existUser) {
+      const data = await context.getById(decoded.email).catch((error)=> error);
+      if (data.id === 0) {
         user.email = decoded.email;
         user.role = decoded.role;
       }

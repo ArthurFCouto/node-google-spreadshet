@@ -1,7 +1,7 @@
 # NodeJS + Google SpreadSheet
 # Catálogo online de produtos
 
-## O Projeto :label:
+## :label: O Projeto
 
 Desenvolver uma API de busca de informações como preço médio, marca e categoria, de produtos do setor de varejo, consumindo a API da `Cosmos Bluesoft`. Utilizar o `Google Planilhas` para armazenar as informações sobre os produtos, bem como os cadastros de usuários e mercados. Criar e aplicar as regras de negocio para permitir que usuários autenticados informem o preço atual do produto.
 
@@ -44,8 +44,6 @@ Desenvolver uma API de busca de informações como preço médio, marca e catego
 A aplicação foi desenvolvida com o intuito de aplicar os conhecimentos adquiridos durante os estudos sobre NodeJs.
 
 A aplicação é um projeto pessoal para complementação dos estudos, com isso será atualizada e refatorada constantementemente.
-
-O
 
 Optei por **não utilizar framework** para entender melhor como eles funcionam por *debaixo dos panos*.
 

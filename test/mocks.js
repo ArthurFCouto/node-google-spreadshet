@@ -120,7 +120,7 @@ const PRODUCT_LIST = {
   totalProduto: 103,
   proximaPagina: {
     page: 2,
-    query: 'ACUCAR+REFINADO+UNIAO+1KGS',
+    query: 'ACUCAR+REFINADO+UNIAO+1KG',
   },
   listaProduto: [],
 };
@@ -132,16 +132,16 @@ const PRODUTCT_LIST_NEXT = {
   totalProduto: 103,
   proximaPagina: {
     page: 3,
-    query: 'ACUCAR+REFINADO+UNIAO+1KGS',
+    query: 'ACUCAR+REFINADO+UNIAO+1KG',
   },
   listaProduto: [],
 };
 
 const PRODUTCT_LIST_GOOGLE = {
   atualPagina: 1,
-  porPagina: 1,
+  porPagina: 2,
   totalPagina: 1,
-  totalProduto: 1,
+  totalProduto: 2,
   proximaPagina: undefined,
   listaProduto: [],
 };
