@@ -4,6 +4,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable camelcase */
 const { cosmos } = require('../server/config');
+const customError = require('./error');
 
 function modelResponseProduct(product, model) {
   if (Array.isArray(product) || Array.isArray(product.products)) {
@@ -187,50 +188,52 @@ function modelResponsePriceList(data) {
 */
 function modelResponseError(message, error) {
   message = message || 'Erro interno';
-  let res = {};
-  if (error === null) {
-    res = {
+  const { response, request, status } = error;
+  if (response) {
+    return {
       error: message,
       details: {
-        status: 500,
-        statusText: 'Internal server error',
-        data: 'Erro interno no servidor, tente mais tarde',
+        status: response.status,
+        statusText: response.statusText,
+        data: response.data.message || error.response.data.error_description,
       },
     };
-  } else {
-    const { response, request, status } = error;
-    if (response) {
-      res = {
-        error: message,
-        details: {
-          status: response.status,
-          statusText: response.statusText,
-          data: response.data.message || error.response.data.error_description,
-        },
-      };
-    } else if (request) {
-      res = {
-        error: message,
-        details: {
-          status: 500,
-          statusText: 'Internal server error',
-          data: request,
-        },
-      };
-    } else if (status) {
-      res = {
-        error: message,
-        details: {
-          status,
-          statusText: error.statusText,
-          data: error.data,
-        },
-      };
-    }
   }
-  return new Promise((resolve, reject)=> {
-    reject(res);
-  });
+  if (request) {
+    return {
+      error: message,
+      details: {
+        ...customError[500],
+        data: request,
+      },
+    };
+  }
+  if (status) {
+    return {
+      error: message,
+      details: {
+        status,
+        statusText: error.statusText,
+        data: error.data,
+      },
+    };
+  }
+  if (error) {
+    return {
+      error: message,
+      details: {
+        ...customError[500],
+        data: error.message,
+      },
+    };
+  }
+  return {
+    error: message,
+    details: {
+      ...customError[500],
+      data: 'Erro interno no servidor, tente mais tarde',
+    },
+  };
 }
 
 module.exports = {
