@@ -13,7 +13,7 @@ async function handleAuthMiddleware(request, response) {
     if (authorization) {
       const context = new Context(new User());
       const [, token] = authorization.split(' ');
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = await jwt.verify(token, process.env.JWT_SECRET);
       const data = await context.getById(decoded.email).catch((error)=> error);
       if (data.id === 0) {
         user.email = decoded.email;
@@ -23,7 +23,7 @@ async function handleAuthMiddleware(request, response) {
     request.user = user;
   } catch {
     response.writeHead(400);
-    response.end(JSON.stringify({
+    return response.end(JSON.stringify({
       error: 'Ops! Houve um erro durante a autenticação',
       details: { ...customError[400], data: 'Verifique o token enviado' },
     }));
