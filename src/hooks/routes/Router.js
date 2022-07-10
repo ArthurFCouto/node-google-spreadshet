@@ -1,5 +1,5 @@
 /* eslint-disable consistent-return */
-const RouteNotFoundError = require('./RouteNotFoundError');
+const RouteNotFoundError = require('./routeNotFoundError');
 const handleRegex = require('./handleRegex');
 const handleBodyParser = require('./handleBodyParser');
 const handleMiddlewares = require('./handleMiddlewares');
