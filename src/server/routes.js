@@ -8,7 +8,7 @@ const {
   handleAuth, handleContentTypeJson, handleCors, handleRouteNotFound,
 } = require('../middlewares');
 const Router = require('../hooks/routes');
-const RouteNotFoundError = require('../hooks/routes/routeNotFoundError');
+const RouteNotFoundError = require('../hooks/routes/handleRouterNotFoundError');
 
 function handleError(error, response) {
   if (error instanceof RouteNotFoundError) {

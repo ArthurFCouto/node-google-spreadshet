@@ -1,10 +1,10 @@
 /* eslint-disable consistent-return */
-const RouteNotFoundError = require('./routeNotFoundError');
+const RouteNotFoundError = require('./handleRouterNotFoundError');
 const handleRegex = require('./handleRegex');
 const handleBodyParser = require('./handleBodyParser');
 const handleMiddlewares = require('./handleMiddlewares');
 
-class Router {
+class handlerRouter {
   constructor(request, response) {
     this.request = request;
     this.response = response;
@@ -87,4 +87,4 @@ class Router {
   }
 }
 
-module.exports = Router;
+module.exports = handlerRouter;
