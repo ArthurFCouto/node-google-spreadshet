@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable no-restricted-globals */
 /* eslint-disable class-methods-use-this */
 const { Context, Market } = require('../../service/googlesheetsservice');
 const customError = require('../../util/error');
@@ -14,7 +12,7 @@ class MarketController {
     if (data.error) {
       response.writeHead(data.details.status);
     }
-    return response.end(JSON.stringify(data));
+    response.end(JSON.stringify(data));
   }
 
   async getById(request, response) {
