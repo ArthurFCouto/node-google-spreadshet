@@ -22,24 +22,35 @@ class ProductStrategy extends CustomInterface {
       const document = new GoogleSpreadsheet(process.env.ID_WORKSHEET);
       await document.useServiceAccountAuth({
         client_email: process.env.CLIENT_EMAIL,
-        private_key: process.env.PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
       });
       await document.loadInfo();
       return document;
     } catch (error) {
       console.error('Erro ao conectar com servidor GoogleSpreadsheet', error);
+<<<<<<< HEAD
       throw error;
+=======
+      this._error = error;
+      throw new Error();
+>>>>>>> 8ece582c4426ce27639280fd6de0406817af918c
     }
   }
 
   async _getRows() {
     try {
-      const response = await this._getDocument();
-      const sheet = response.sheetsByIndex[this._index];
-      return await sheet.getRows();
+      return this._getDocument().then(async (response)=> {
+        const sheet = response.sheetsByIndex[this._index];
+        return sheet.getRows().then((rows)=> rows);
+      });
     } catch (error) {
       console.error('Erro ao recuperar as linhas da planilha', error);
+<<<<<<< HEAD
       throw error;
+=======
+      this._error = error;
+      throw new Error();
+>>>>>>> 8ece582c4426ce27639280fd6de0406817af918c
     }
   }
 
@@ -48,7 +59,12 @@ class ProductStrategy extends CustomInterface {
       return this._getDocument().then(async (response)=> response.sheetsByIndex[this._index]);
     } catch (error) {
       console.error('Erro ao recuperar a planilha', error);
+<<<<<<< HEAD
       throw error;
+=======
+      this._error = error;
+      throw new Error();
+>>>>>>> 8ece582c4426ce27639280fd6de0406817af918c
     }
   }
 
@@ -111,8 +127,8 @@ class ProductStrategy extends CustomInterface {
     try {
       const rows = await this._getRows();
       return modelResponseProduct(rows);
-    } catch (error) {
-      return modelResponseError('Ops! Erro ao buscar produtos cadastrados', error);
+    } catch {
+      return modelResponseError('Ops! Erro ao buscar produtos cadastrados', this._error);
     }
   }
 
@@ -154,8 +170,8 @@ class ProductStrategy extends CustomInterface {
         return modelResponseProduct(product);
       }
       return modelResponseError(`Ops! O produto com código ${id} não está cadastrado`, customError[404]);
-    } catch (error) {
-      return modelResponseError(`Ops! Erro durante a pesquisa do código ${id}`, error);
+    } catch {
+      return modelResponseError(`Ops! Erro durante a pesquisa do código ${id}`, customError[500]);
     }
   }
 

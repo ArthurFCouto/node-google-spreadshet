@@ -4,7 +4,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable camelcase */
 const { cosmos } = require('../server/config');
-const customError = require('./error');
 
 function modelResponseProduct(product, model) {
   if (Array.isArray(product) || Array.isArray(product.products)) {
@@ -183,6 +182,7 @@ function modelResponsePriceList(data) {
 }
 
 function modelResponseError(message, error) {
+<<<<<<< HEAD
   message = message || 'Erro interno no servidor';
   const { response, request, status } = error;
   if (response) {
@@ -206,27 +206,60 @@ function modelResponseError(message, error) {
   }
   if (status) {
     return {
+=======
+  message = message || 'Erro interno';
+  let res = {};
+  if (error === null) {
+    res = {
+>>>>>>> 8ece582c4426ce27639280fd6de0406817af918c
       error: message,
       details: {
-        status,
-        statusText: error.statusText,
-        data: error.data,
+        status: 500,
+        statusText: 'Internal server error',
+        data: 'Erro interno no servidor, tente mais tarde',
       },
     };
+  } else {
+    const { response, request, status } = error;
+    if (response) {
+      res = {
+        error: message,
+        details: {
+          status: response.status,
+          statusText: response.statusText,
+          data: response.data.message || error.response.data.error_description,
+        },
+      };
+    } else if (request) {
+      res = {
+        error: message,
+        details: {
+          status: 500,
+          statusText: 'Internal server error',
+          data: request,
+        },
+      };
+    } else if (status) {
+      res = {
+        error: message,
+        details: {
+          status,
+          statusText: error.statusText,
+          data: error.data,
+        },
+      };
+    }
   }
-  if (error) {
-    return {
-      error: message,
-      details: {
-        ...customError[500],
-        data: error.message,
-      },
-    };
-  }
+<<<<<<< HEAD
   return {
     error: message,
     details: customError[500],
   };
+=======
+  return new Promise((resolve, reject)=> {
+    reject(res);
+  });
+>>>>>>> 8ece582c4426ce27639280fd6de0406817af918c
 }
 
 module.exports = {

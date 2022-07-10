@@ -9,7 +9,7 @@ const { roles } = config;
 class ProductController {
   async getAll(request, response) {
     const context = new Context(new Product());
-    const data = await context.getAll();
+    const data = await context.getAll().catch((error)=> error);
     if (data && data.error) {
       response.writeHead(data.details.status);
     }
@@ -22,9 +22,9 @@ class ProductController {
     if (description) {
       let data = {};
       if (database && database.toUpperCase() === 'COSMOS') {
-        data = await cosmosService.getByDescription(description);
+        data = await cosmosService.getByDescription(description).catch((error)=> error);
       } else {
-        data = await context.getByDescription(description);
+        data = await context.getByDescription(description).catch((error)=> error);
       }
       if (data && data.error) {
         response.writeHead(data.details.status);
@@ -41,11 +41,11 @@ class ProductController {
   async getById(request, response) {
     const context = new Context(new Product());
     const { id } = request.path;
-    let data = await context.getById(id);
+    let data = await context.getById(id).catch((error)=> error);
     if (data && !data.error) {
       return response.end(JSON.stringify(data));
     }
-    data = await cosmosService.geBytLins(id);
+    data = await cosmosService.geBytLins(id).catch((error)=> error);
     if (data && data.error) {
       response.writeHead(data.details.status);
     } else {
@@ -92,7 +92,7 @@ class ProductController {
     const context = new Context(new Product());
     const { id } = request.path;
     if (id) {
-      const data = await context.delete(id);
+      const data = await context.delete(id).catch((error)=> error);
       if (data && data.error) {
         response.writeHead(data.details.status);
       }
