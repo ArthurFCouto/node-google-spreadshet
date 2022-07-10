@@ -1,18 +1,24 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-await-in-loop */
 const handleMiddlewares = async (request, response, callback)=> {
   const latestPosition = callback.length - 1;
   const middlewares = callback.slice(0, latestPosition);
-  const middlewaresPending = middlewares.map(async (middleware)=> {
-    if (response.completed) {
-      return;
+  /*
+   * Está sendo utilizado for e não forEach pois este não aguarda a finalização das promisses
+   * Como um middleware pode dependenter de um antecessor, não é recomendável o uso do Promise.all
+   */
+  for (const middleware of middlewares) {
+    if (response.finished) {
+      break;
     }
     await middleware(request, response);
-  });
-  await Promise.all(middlewaresPending);
-  if (response.completed) {
+  }
+  if (response.finished) {
     return;
   }
   const controller = callback[latestPosition];
-  controller(request, response);
+  return controller(request, response);
 };
 
 module.exports = handleMiddlewares;

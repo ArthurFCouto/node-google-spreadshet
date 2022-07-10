@@ -2,7 +2,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-globals */
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable class-methods-use-this */
 /* eslint-disable no-plusplus */
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const CustomInterface = require('./base/interface');
@@ -16,7 +15,6 @@ class ProductStrategy extends CustomInterface {
   constructor() {
     super();
     this._index = 1;
-    this._error = null;
   }
 
   async _getDocument() {
@@ -30,7 +28,6 @@ class ProductStrategy extends CustomInterface {
       return document;
     } catch (error) {
       console.error('Erro ao conectar com servidor GoogleSpreadsheet', error);
-      this._error = error;
       throw error;
     }
   }
@@ -42,7 +39,6 @@ class ProductStrategy extends CustomInterface {
       return await sheet.getRows();
     } catch (error) {
       console.error('Erro ao recuperar as linhas da planilha', error);
-      this._error = error;
       throw error;
     }
   }
@@ -52,7 +48,6 @@ class ProductStrategy extends CustomInterface {
       return this._getDocument().then(async (response)=> response.sheetsByIndex[this._index]);
     } catch (error) {
       console.error('Erro ao recuperar a planilha', error);
-      this._error = error;
       throw error;
     }
   }
@@ -62,7 +57,7 @@ class ProductStrategy extends CustomInterface {
     if (typeof id === 'string' || typeof id === 'number') {
       const rows = await this._getRows();
       for (let i = 0; i < rows.length; i++) {
-        if (rows[i].codigo_produto.toString().toLowerCase() === id.toString().toLowerCase()) {
+        if (rows[i].codigo_produto.toString() === id.toString()) {
           product = rows[i];
           break;
         }
@@ -145,11 +140,10 @@ class ProductStrategy extends CustomInterface {
       })
         .then((response)=> modelResponseProduct(response))
         .catch((error)=> {
-          this._error = error;
-          throw new Error();
+          throw error;
         });
-    } catch {
-      return modelResponseError('Ops! Erro durante o cadastro de um produto', this._error);
+    } catch (error) {
+      return modelResponseError('Ops! Erro durante o cadastro de um produto', error);
     }
   }
 
@@ -178,8 +172,8 @@ class ProductStrategy extends CustomInterface {
         });
       }
       return modelResponseProduct(product);
-    } catch {
-      return modelResponseError('Ops! Erro durante a pesquisa pela descrição', customError[500]);
+    } catch (error) {
+      return modelResponseError('Ops! Erro durante a pesquisa pela descrição', error);
     }
   }
 
@@ -192,8 +186,8 @@ class ProductStrategy extends CustomInterface {
         return modelResponseProduct(response);
       }
       return modelResponseError(`Ops! O produto com código ${id} não está cadastrado`, customError[404]);
-    } catch {
-      return modelResponseError(`Ops! Erro durante a exclusão do código ${id}`, customError[500]);
+    } catch (error) {
+      return modelResponseError(`Ops! Erro durante a exclusão do código ${id}`, error);
     }
   }
 }

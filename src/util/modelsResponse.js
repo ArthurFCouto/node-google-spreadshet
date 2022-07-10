@@ -54,12 +54,11 @@ function modelResponseProduct(product, model) {
     _createdAt: criadoEm,
     _updatedAt: atualizadoEm,
   } = product;
-  const imagemProduto = thumbnailProduto || cosmos.urlDefault.imagem;
   return {
     id: 0,
     descricaoProduto,
     barcodeProduto,
-    imagemProduto,
+    imagemProduto: thumbnailProduto,
     detalheProduto,
     precoMedioNacional: parseFloat(precoMedioNacional.replace(',', '.')).toFixed(2),
     marcaProduto,
@@ -81,8 +80,8 @@ function modelResponseProductList(data, model) {
       products,
     } = data;
     const list_products = products.map((item)=> modelResponseProduct(item, 'cosmos'));
-    const indexOf = next_page.indexOf('?');
-    const paramsRaw = indexOf !== -1 && next_page.slice(indexOf + 1, next_page.length);
+    const querySeparatorIndex = next_page.indexOf('?');
+    const paramsRaw = querySeparatorIndex !== -1 && next_page.slice(querySeparatorIndex + 1, next_page.length);
     let params = {};
     if (paramsRaw) {
       const list = paramsRaw.split('&').map((item)=> {
@@ -183,11 +182,8 @@ function modelResponsePriceList(data) {
   return listPrices;
 }
 
-/*
-  Estudar a melhor forma de melhorar este método
-*/
 function modelResponseError(message, error) {
-  message = message || 'Erro interno';
+  message = message || 'Erro interno no servidor';
   const { response, request, status } = error;
   if (response) {
     return {
@@ -195,7 +191,7 @@ function modelResponseError(message, error) {
       details: {
         status: response.status,
         statusText: response.statusText,
-        data: response.data.message || error.response.data.error_description,
+        data: response.data.message || error.response.data.error,
       },
     };
   }
@@ -229,10 +225,7 @@ function modelResponseError(message, error) {
   }
   return {
     error: message,
-    details: {
-      ...customError[500],
-      data: 'Erro interno no servidor, tente mais tarde',
-    },
+    details: customError[500],
   };
 }
 

@@ -11,11 +11,14 @@ const handleRegex = (request, requiredPath)=> {
     const querySeparatorIndex = requestUrl.indexOf('?');
     const src = querySeparatorIndex !== -1 ? requestUrl.slice(0, querySeparatorIndex) : requestUrl;
     const regexp = pathToRegexp(requiredUrl);
-    const paths = match(requiredUrl);
-    const { params: path } = paths(src);
-    request.path = path && JSON.parse(JSON.stringify(path));
-    request.params = handleParams(request, querySeparatorIndex);
-    return regexp.test(src);
+    const isMatch = regexp.test(src);
+    if (isMatch) {
+      const paths = match(requiredUrl);
+      const { params: path } = paths(src);
+      request.path = path && JSON.parse(JSON.stringify(path));
+      request.params = handleParams(requestUrl, querySeparatorIndex);
+    }
+    return isMatch;
   } catch {
     return false;
   }

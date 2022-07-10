@@ -1,6 +1,4 @@
-/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-restricted-globals */
-/* eslint-disable class-methods-use-this */
 const cosmosService = require('../../service/cosmosservice');
 const { Context, Product } = require('../../service/googlesheetsservice');
 const customError = require('../../util/error');
@@ -35,7 +33,7 @@ class ProductController {
     }
     response.writeHead(400);
     return response.end(JSON.stringify({
-      error: 'Ops! Não foram encontrados produtos com os dados enviados',
+      error: 'Ops! Ocorreu um erro durante a pesquisa',
       details: { ...customError[400], data: 'Enviar parametro description' },
     }));
   }
@@ -52,9 +50,9 @@ class ProductController {
       response.writeHead(data.details.status);
     } else {
       /*
-        Não foi utilizado o await pois não é necessário aguardar o cadastro para enviar a resposta ao usuário
-      */
-      context.create(data).then((product)=> console.log('Cadastro no GoogleSheets: OK', product)).catch((error)=> console.log('Cadastro no GoogleSheet: Fail', JSON.stringify(error)));
+       * Não foi utilizado o await pois não é necessário aguardar o cadastro para enviar a resposta ao usuário
+       */
+      context.create(data);
     }
     return response.end(JSON.stringify(data));
   }
@@ -76,15 +74,15 @@ class ProductController {
   }
 
   async delete(request, response) {
-    const { user } = request;
-    if (!user.role) {
+    const { role } = request.user;
+    if (!role) {
       response.writeHead(401);
       return response.end(JSON.stringify({
         error: 'Ops! Usuário não autenticado',
         details: customError[401],
       }));
     }
-    if (user.role !== roles.admin) {
+    if (role !== roles.admin) {
       response.writeHead(403);
       return response.end(JSON.stringify({
         error: 'Ops! Usuário sem autorização para a operação',

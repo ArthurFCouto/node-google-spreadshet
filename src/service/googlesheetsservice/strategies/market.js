@@ -3,7 +3,6 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
-/* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
 /* eslint-disable no-plusplus */
 const { GoogleSpreadsheet } = require('google-spreadsheet');
@@ -17,7 +16,6 @@ class marketStrategies extends customInterface {
   constructor() {
     super();
     this._index = 3;
-    this._error = null;
   }
 
   async _getDocument() {
@@ -25,14 +23,13 @@ class marketStrategies extends customInterface {
       const document = new GoogleSpreadsheet(process.env.ID_WORKSHEET);
       await document.useServiceAccountAuth({
         client_email: process.env.CLIENT_EMAIL,
-        private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
+        private_key: process.env.PRIVATE_KEY?.replace(/\\n/g, '\n'),
       });
       await document.loadInfo();
       return document;
     } catch (error) {
       console.error('Erro ao conectar com servidor GoogleSpreadsheet', error);
-      this._error = error;
-      throw new Error();
+      throw error;
     }
   }
 
@@ -44,8 +41,7 @@ class marketStrategies extends customInterface {
       });
     } catch (error) {
       console.error('Erro ao recuperar as linhas da planilha', error);
-      this._error = error;
-      throw new Error();
+      throw error;
     }
   }
 
@@ -54,8 +50,7 @@ class marketStrategies extends customInterface {
       return this._getDocument().then(async (response)=> response.sheetsByIndex[this._index]);
     } catch (error) {
       console.error('Erro ao recuperar a planilha', error);
-      this._error = error;
-      throw new Error();
+      throw error;
     }
   }
 
@@ -121,8 +116,8 @@ class marketStrategies extends customInterface {
     try {
       const rows = await this._getRows();
       return rows.map((market)=> (modelResponseMarket(market)));
-    } catch {
-      return modelResponseError('Ops! Erro ao buscar mercados cadastrados', this._error);
+    } catch (error) {
+      return modelResponseError('Ops! Erro ao buscar mercados cadastrados', error);
     }
   }
 
@@ -150,11 +145,10 @@ class marketStrategies extends customInterface {
       })
         .then((res)=> modelResponseMarket(res))
         .catch((error)=> {
-          this._error = error;
-          throw new Error();
+          throw error;
         });
-    } catch {
-      return modelResponseError('Ops! Erro durante o cadastro do mercado', this._error);
+    } catch (error) {
+      return modelResponseError('Ops! Erro durante o cadastro do mercado', error);
     }
   }
 
@@ -165,8 +159,8 @@ class marketStrategies extends customInterface {
         return modelResponseMarket(market);
       }
       return modelResponseError(`Ops! O mercado com CNPJ ${id} não está cadastrado`, customError[404]);
-    } catch {
-      return modelResponseError('Ops! Erro durante a busca pelo CNPJ', customError[500]);
+    } catch (error) {
+      return modelResponseError('Ops! Erro durante a busca pelo CNPJ', error);
     }
   }
 
@@ -179,8 +173,8 @@ class marketStrategies extends customInterface {
         return response;
       }
       return modelResponseError(`Ops! O mercado com CNPJ ${id} não está cadastrado`, customError[404]);
-    } catch {
-      return modelResponseError('Ops! Erro durante a exlusão do mercado', customError[500]);
+    } catch (error) {
+      return modelResponseError('Ops! Erro durante a exlusão do mercado', error);
     }
   }
 }

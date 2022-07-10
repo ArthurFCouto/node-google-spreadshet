@@ -1,7 +1,6 @@
 /* eslint-disable linebreak-style */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
-/* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
 const CustomInterface = require('./interface');
 

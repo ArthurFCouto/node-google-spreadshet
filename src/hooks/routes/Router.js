@@ -1,19 +1,20 @@
+/* eslint-disable consistent-return */
 const RouteNotFoundError = require('./RouteNotFoundError');
 const handleRegex = require('./handleRegex');
 const handleBodyParser = require('./handleBodyParser');
 const handleMiddlewares = require('./handleMiddlewares');
 
 class Router {
-  constructor(req, res) {
-    this.request = req;
-    this.response = res;
+  constructor(request, response) {
+    this.request = request;
+    this.response = response;
     this.routes = [];
     this.method = undefined;
     this.path = undefined;
   }
 
-  static create(req, res) {
-    return new this(req, res);
+  static create(request, response) {
+    return new this(request, response);
   }
 
   get(path, ...callbacks) {
@@ -57,32 +58,32 @@ class Router {
   }
 
   /*
-    Será executado somente se o response.end() não tiver sido chamado
-  */
+   * Será executado somente se o response.end() não tiver sido chamado
+   */
   use(callback) {
-    const { completed } = this.response;
-    if (!completed) {
+    const { finished } = this.response;
+    if (!finished) {
       callback(this.request, this.response);
     }
   }
 
   async exec() {
     const { method } = this.request;
-    const { completed } = this.response;
+    const { finished } = this.response;
     const matchedRoute = this.routes.find((route)=> {
       const isMatch = handleRegex(this.request, route.path);
-      return isMatch ? route : undefined;
+      return (method === route.method && isMatch) ? route : undefined;
     });
-    if (!matchedRoute || (method !== matchedRoute.method)) {
+    if (!matchedRoute) {
       throw new RouteNotFoundError(method, this.request.url);
     }
-    if (completed) {
+    if (finished) {
       return;
     }
     if (['POST', 'PUT', 'PATCH'].includes(method)) {
       await handleBodyParser(this.request);
     }
-    handleMiddlewares(this.request, this.response, matchedRoute.callbacks);
+    return handleMiddlewares(this.request, this.response, matchedRoute.callbacks);
   }
 }
 

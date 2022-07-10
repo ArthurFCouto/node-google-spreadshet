@@ -12,11 +12,15 @@
     },
     "rules": {
         "no-console": "off",
-        "linebreak-style": ["error", "unix"],
+        "linebreak-style": ["error", "windows"],
         "arrow-parens": ["error", "always"],
         "arrow-spacing": ["error", {"before": false, "after": true}],
         "quotes": ["error", "single"],
         "implicit-arrow-linebreak": ["error", "beside"],
-        "max-len": [2, 200, 4, {"ignoreUrls": true}]
+        "max-len": [2, 200, 4, {"ignoreUrls": true}],
+        "class-methods-use-this": 0,
+        "func-names": ["error", "never", { "generators": "always" }],
+        "no-undef": 0,
+        "no-underscore-dangle": ["error", { "allowAfterSuper": true }]
     }
 }

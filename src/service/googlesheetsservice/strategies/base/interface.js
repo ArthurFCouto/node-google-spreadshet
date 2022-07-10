@@ -1,8 +1,6 @@
 /* eslint-disable linebreak-style */
 /* eslint-disable no-unused-vars */
-/* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
-
 class NotImplementedException extends Error {
   constructor() {
     super('Method Not Implemented');

@@ -113,38 +113,14 @@ const PRODUCT_ERROR = {
   error: 'Ops! Não foi possível cadastrar o produto',
 };
 
-const PRODUCT_LIST = {
-  atualPagina: 1,
-  porPagina: 30,
-  totalPagina: 4,
-  totalProduto: 103,
-  proximaPagina: {
-    page: 2,
-    query: 'ACUCAR+REFINADO+UNIAO+1KG',
-  },
-  listaProduto: [],
-};
-
-const PRODUTCT_LIST_NEXT = {
-  atualPagina: 2,
-  porPagina: 30,
-  totalPagina: 4,
-  totalProduto: 103,
-  proximaPagina: {
-    page: 3,
-    query: 'ACUCAR+REFINADO+UNIAO+1KG',
-  },
-  listaProduto: [],
-};
-
-const PRODUTCT_LIST_GOOGLE = {
-  atualPagina: 1,
-  porPagina: 2,
-  totalPagina: 1,
-  totalProduto: 2,
-  proximaPagina: undefined,
-  listaProduto: [],
-};
+const PRODUCT_KEYS_LIST = [
+  'atualPagina',
+  'porPagina',
+  'totalPagina',
+  'totalProduto',
+  'proximaPagina',
+  'listaProduto',
+];
 
 const PRICE_ACTUAL = {
   codigoProduto: '7891024134702',
@@ -266,9 +242,7 @@ module.exports = {
   USER_ERROR,
   PRODUCT_EXPECT,
   PRODUCT_ERROR,
-  PRODUCT_LIST,
-  PRODUTCT_LIST_NEXT,
-  PRODUTCT_LIST_GOOGLE,
+  PRODUCT_KEYS_LIST,
   PRICE_ACTUAL,
   PRICE_ERROR,
   MARKET,

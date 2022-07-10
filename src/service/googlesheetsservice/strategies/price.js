@@ -3,7 +3,6 @@
 /* eslint-disable no-restricted-globals */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable class-methods-use-this */
 /* eslint-disable no-plusplus */
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const CustomInterface = require('./base/interface');
@@ -18,7 +17,6 @@ class PriceStrategy extends CustomInterface {
   constructor() {
     super();
     this._index = 2;
-    this._error = null;
   }
 
   async _getDocument() {
@@ -26,14 +24,13 @@ class PriceStrategy extends CustomInterface {
       const document = new GoogleSpreadsheet(process.env.ID_WORKSHEET);
       await document.useServiceAccountAuth({
         client_email: process.env.CLIENT_EMAIL,
-        private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
+        private_key: process.env.PRIVATE_KEY?.replace(/\\n/g, '\n'),
       });
       await document.loadInfo();
       return document;
     } catch (error) {
       console.error('Erro ao conectar com servidor GoogleSpreadsheet', error);
-      this._error = error;
-      throw new Error();
+      throw error;
     }
   }
 
@@ -45,8 +42,7 @@ class PriceStrategy extends CustomInterface {
       });
     } catch (error) {
       console.error('Erro ao recuperar as linhas da planilha', error);
-      this._error = error;
-      throw new Error();
+      throw error;
     }
   }
 
@@ -55,8 +51,7 @@ class PriceStrategy extends CustomInterface {
       return this._getDocument().then(async (response)=> response.sheetsByIndex[this._index]);
     } catch (error) {
       console.error('Erro ao recuperar a planilha', error);
-      this._error = error;
-      throw new Error();
+      throw error;
     }
   }
 
@@ -81,7 +76,7 @@ class PriceStrategy extends CustomInterface {
     const {
       emailUsuario, cnpjMercado, codigoProduto, precoAtual,
     } = data;
-    const user = emailUsuario && await contextUser.getById(emailUsuario).catch((erro)=> erro);
+    const user = emailUsuario && await contextUser.getById(emailUsuario);
     if (!user || user.id !== 0) {
       error.push({
         field: 'emailUsuario',
@@ -89,7 +84,7 @@ class PriceStrategy extends CustomInterface {
         value: emailUsuario || '',
       });
     }
-    const market = cnpjMercado && await contextMarket.getById(cnpjMercado).catch((erro)=> erro);
+    const market = cnpjMercado && await contextMarket.getById(cnpjMercado);
     if (!market || market.id !== 0) {
       error.push({
         field: 'cnpjMercado',
@@ -118,8 +113,8 @@ class PriceStrategy extends CustomInterface {
     try {
       const rows = await this._getRows();
       return modelResponsePrice(rows);
-    } catch {
-      return modelResponseError('Ops! Erro ao buscar preços cadastrados', this._error);
+    } catch (error) {
+      return modelResponseError('Ops! Erro ao buscar preços cadastrados', error);
     }
   }
 
@@ -159,12 +154,11 @@ class PriceStrategy extends CustomInterface {
           response = res;
         })
         .catch((error)=> {
-          this._error = error;
-          throw new Error();
+          throw error;
         });
       return modelResponsePrice(response);
-    } catch {
-      return modelResponseError('Ops! Erro durante o cadastro do preço', this._error);
+    } catch (error) {
+      return modelResponseError('Ops! Erro durante o cadastro do preço', error);
     }
   }
 
@@ -175,8 +169,8 @@ class PriceStrategy extends CustomInterface {
         return modelResponsePrice(list);
       }
       return modelResponseError(`Ops! Ainda não há preços atuais cadastrados para o produto com código ${id}`, customError[404]);
-    } catch {
-      return modelResponseError(`Ops! Erro durante a pesquisa do código ${id}`, customError[500]);
+    } catch (error) {
+      return modelResponseError(`Ops! Erro durante a pesquisa do código ${id}`, error);
     }
   }
 
@@ -185,6 +179,9 @@ class PriceStrategy extends CustomInterface {
       const list = id && await this._searchForExisting(id);
       if (list.length > 0) {
         list.map(async (row)=> { await row.del(); });
+        /*
+         * Quando há muitas linhas a excluir, o programa não exclui todas, por isso é preciso a recursividade
+         */
         const newlist = await this._searchForExisting(id);
         if (newlist.length > 0) {
           return this.delete(id);
@@ -192,8 +189,8 @@ class PriceStrategy extends CustomInterface {
         return modelResponsePrice(list);
       }
       return modelResponseError(`Ops! Ainda não há preços atuais cadastrados para o produto com código ${id}`, customError[404]);
-    } catch {
-      return modelResponseError('Ops! Erro durante a exclusão do preço', customError[500]);
+    } catch (error) {
+      return modelResponseError('Ops! Erro durante a exclusão do preço', error);
     }
   }
 }

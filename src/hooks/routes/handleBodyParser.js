@@ -1,7 +1,5 @@
 const handleBodyParser = (request)=> new Promise((resolve, reject)=> {
   let raw = [];
-  request.rawBody = '';
-  request.body = {};
   request.on('data', (chunk)=> {
     raw.push(chunk);
   })

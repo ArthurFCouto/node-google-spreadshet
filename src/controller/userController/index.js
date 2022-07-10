@@ -1,25 +1,25 @@
-/* eslint-disable no-underscore-dangle */
+/* eslint-disable consistent-return */
 /* eslint-disable no-restricted-globals */
-/* eslint-disable class-methods-use-this */
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { Context, User } = require('../../service/googlesheetsservice');
 const customError = require('../../util/error');
+const { modelResponseError } = require('../../util/modelsResponse');
 const config = require('../../server/config');
 
 const { roles } = config;
 
 class UserController {
   async getAll(request, response) {
-    const { user } = request;
-    if (!user.role) {
+    const { role } = request.user;
+    if (!role) {
       response.writeHead(401);
       return response.end(JSON.stringify({
         error: 'Ops! Usuário não autenticado',
         details: customError[401],
       }));
     }
-    if (user.role !== roles.admin) {
+    if (role !== roles.admin) {
       response.writeHead(403);
       return response.end(JSON.stringify({
         error: 'Ops! Usuário sem autorização para a operação',
@@ -27,7 +27,7 @@ class UserController {
       }));
     }
     const context = new Context(new User());
-    let data = await context.getAll().catch((error)=> error);
+    let data = await context.getAll();
     if (data && data.error) {
       response.writeHead(data.details.status);
     }
@@ -38,15 +38,15 @@ class UserController {
   }
 
   async getById(request, response) {
-    const { user } = request;
-    if (!user.role) {
+    const { role } = request.user;
+    if (!role) {
       response.writeHead(401);
       return response.end(JSON.stringify({
         error: 'Ops! Usuário não autenticado',
         details: customError[401],
       }));
     }
-    if (user.role !== roles.admin) {
+    if (role !== roles.admin) {
       response.writeHead(403);
       return response.end(JSON.stringify({
         error: 'Ops! Usuário sem autorização para a operação',
@@ -56,7 +56,7 @@ class UserController {
     const context = new Context(new User());
     const { email } = request.params;
     if (email) {
-      const data = await context.getById(email).catch((error)=> error);
+      const data = await context.getById(email);
       if (data && data.error) {
         response.writeHead(data.details.status);
       }
@@ -75,7 +75,7 @@ class UserController {
   async save(request, response) {
     const context = new Context(new User());
     const { body } = request;
-    const data = await context.create(body).catch((error)=> error);
+    const data = await context.create(body);
     if (data && data.error) {
       response.writeHead(data.details.status);
       return response.end(JSON.stringify(data));
@@ -89,15 +89,15 @@ class UserController {
   }
 
   async delete(request, response) {
-    const { user } = request;
-    if (!user.role) {
+    const { role } = request.user;
+    if (!role) {
       response.writeHead(401);
       return response.end(JSON.stringify({
         error: 'Ops! Usuário não autenticado',
         details: customError[401],
       }));
     }
-    if (user.role !== roles.admin) {
+    if (role !== roles.admin) {
       response.writeHead(403);
       return response.end(JSON.stringify({
         error: 'Ops! Usuário sem autorização para a operação',
@@ -107,7 +107,7 @@ class UserController {
     const context = new Context(new User());
     const { email } = request.params;
     if (email) {
-      const data = await context.delete(email).catch((error)=> error);
+      const data = await context.delete(email);
       if (data && data.error) {
         response.writeHead(data.details.status);
       }
@@ -134,7 +134,7 @@ class UserController {
     }
     try {
       const context = new Context(new User());
-      const user = await context.getById(email).catch((error)=> error);
+      const user = await context.getById(email);
       if (!user.error) {
         if (await bcrypt.compare(senha, user.senhaUsuario)) {
           const {
@@ -156,13 +156,12 @@ class UserController {
           details: customError[400],
         }));
       }
-      response.writeHead(404);
-      return response.end(JSON.stringify({
-        error: 'Ops! Usuário não encontrado',
-        details: customError[404],
-      }));
+      response.writeHead(user.details.status || 500);
+      response.end(JSON.stringify({ user }));
     } catch (error) {
-      throw new Error(error.message);
+      const errorResponse = modelResponseError('Ops! Erro durante a autenticação do usuário', error);
+      response.writeHead(errorResponse.details.status);
+      response.end(JSON.stringify(errorResponse));
     }
   }
 }

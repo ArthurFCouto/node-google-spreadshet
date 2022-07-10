@@ -8,22 +8,17 @@ const {
 } = require('../middlewares');
 const Router = require('../hooks/routes');
 const RouteNotFoundError = require('../hooks/routes/RouteNotFoundError');
-const customError = require('../util/error');
+const { modelResponseError } = require('../util/modelsResponse');
 
 function handleError(error, response) {
   if (error instanceof RouteNotFoundError) {
     return handleRouteNotFound(error, response);
   }
-  response.writeHead(500, {
+  const modelError = modelResponseError('Erro interno no servidor, tente mais tarde', error);
+  response.writeHead(modelError.details.status || 500, {
     'Content-Type': 'application/json',
   });
-  return response.end(JSON.stringify({
-    error: 'Erro interno no servidor, tente mais tarde',
-    details: {
-      ...customError[500],
-      data: error.message,
-    },
-  }));
+  return response.end(JSON.stringify(modelError));
 }
 
 function handlerRoutes(request, response) {
@@ -31,10 +26,10 @@ function handlerRoutes(request, response) {
   router.use(handleCors);
   router.use(handleContentTypeJson);
   /*
-    \\d+ <= Definindo que serão aceitos apenas números para o path especificado
-    Os métodos abaixo não requerem autenticação
-  */
-  router.get('', controller.getLogo);
+   * \\d+ <= Definindo que serão aceitos apenas números para o path especificado
+   * Os métodos abaixo não requerem autenticação
+   */
+  router.get('/', controller.getLogo);
   router.get('/produto', productController.getAll);
   router.get('/produto/:id(\\d+)', productController.getById);
   router.get('/produto/buscar', productController.getByDescription);
@@ -45,24 +40,23 @@ function handlerRoutes(request, response) {
   router.get('/mercado', marketController.getAll);
   router.get('/mercado/:cnpj(\\d+)', marketController.getById);
   /*
-    Os métodos abaixo requerem autenticação
-  */
+   * Os métodos abaixo requerem autenticação
+   */
   router.post('/preco', handleAuth, priceController.save);
   router.delete('/preco/:id(\\d+)', handleAuth, priceController.delete);
   /*
-    Os métodos abaixo requerem autenticação e autorização
-  */
+   * Os métodos abaixo requerem autenticação e autorização
+   */
   router.get('/usuario', handleAuth, userController.getAll);
   router.get('/usuario/detalhes', handleAuth, userController.getById);
   router.delete('/usuario', handleAuth, userController.delete);
   router.delete('/produto/:id(\\d+)', handleAuth, productController.delete);
   router.post('/mercado', handleAuth, marketController.save);
   router.delete('/mercado/:cnpj(\\d+)', handleAuth, marketController.delete);
-
   /*
    * Processa a requisição atual
    */
-  router.exec().catch((error)=> handleError(error, response));
+  router.exec().catch((error)=> { handleError(error, response); });
 }
 
 module.exports = handlerRoutes;

@@ -1,7 +1,6 @@
 /* eslint-disable no-restricted-globals */
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable camelcase */
-/* eslint-disable class-methods-use-this */
 const cosmos = require('bluesoft-cosmos-api');
 const axios = require('axios').default;
 const { modelResponseProduct, modelResponseError } = require('../../util/modelsResponse');
@@ -40,8 +39,7 @@ class CosmosService {
   }
 
   getByNextPage(page, query) {
-    if (page && query && !isNaN(page)
-    && (typeof query === 'string' || typeof query === 'number')) {
+    if (page && query && !isNaN(page) && (typeof query === 'string' || typeof query === 'number')) {
       const url = `${process.env.COSMOS_ENDPOINT}/products?page=${page}&query=${query}`;
       return handleResults(url);
     }
