@@ -1,6 +1,7 @@
 /* eslint-disable no-restricted-globals */
 const { Context, Price } = require('../../service/googlesheetsservice');
 const customError = require('../../util/error');
+const { modelPriceById } = require('./functions');
 
 class PriceController {
   async getAll(request, response) {
@@ -19,8 +20,10 @@ class PriceController {
       const data = await context.getById(id);
       if (data && data.error) {
         response.writeHead(data.details.status);
+        return response.end(JSON.stringify(data));
       }
-      return response.end(JSON.stringify(data));
+      const responseData = await modelPriceById(data);
+      return response.end(JSON.stringify(responseData));
     }
     response.writeHead(404);
     return response.end(JSON.stringify({
