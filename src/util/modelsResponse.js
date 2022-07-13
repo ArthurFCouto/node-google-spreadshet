@@ -1,4 +1,3 @@
-/* eslint-disable no-plusplus */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-use-before-define */
 /* eslint-disable no-unused-vars */
@@ -79,7 +78,7 @@ function modelResponseProductList(data, model) {
       next_page,
       products,
     } = data;
-    const list_products = products.map((item)=> modelResponseProduct(item, 'cosmos'));
+    const list_products = products.map((item)=> modelResponseProduct(item, model));
     const querySeparatorIndex = next_page.indexOf('?');
     const paramsRaw = querySeparatorIndex !== -1 && next_page.slice(querySeparatorIndex + 1, next_page.length);
     let params = {};
@@ -99,13 +98,13 @@ function modelResponseProductList(data, model) {
       listaProduto: list_products,
     };
   }
-  const list_products = data.map((item)=> modelResponseProduct(item, 'sheet'));
+  const list_products = data.map((item)=> modelResponseProduct(item, model));
   return {
     atualPagina: 1,
     porPagina: list_products.length,
     totalPagina: 1,
     totalProduto: list_products.length,
-    proximaPagina: undefined,
+    proximaPagina: {},
     listaProduto: list_products,
   };
 }
@@ -173,24 +172,24 @@ function modelResponsePrice(data) {
 function modelResponsePriceList(data) {
   const codes = [...new Set(data.map((price)=> price.codigo_produto))];
   const listPrices = [];
-  for (let i = 0; i < codes.length; i++) {
-    const code = codes[i];
+  codes.forEach((code)=> {
     const list = JSON.stringify(data.filter((price)=> price.codigo_produto === code).map((price)=> modelResponsePrice(price)));
-    const index = JSON.parse(`{"${code}": ${list}}`);
-    listPrices.push(index);
-  }
+    const prices = JSON.parse(`{"${code}": ${list}}`);
+    listPrices.push(prices);
+  });
   return listPrices;
 }
 
 function modelResponseError(message, error) {
+  message = message || 'Erro interno no servidor';
   const { response, request, status } = error;
   if (response) {
     return {
       error: message,
       details: {
-        status: 500,
+        status: response.status,
         statusText: 'Internal server error',
-        data: 'Erro interno no servidor, tente mais tarde',
+        data: response.data,
       },
     };
   }
@@ -198,7 +197,7 @@ function modelResponseError(message, error) {
     return {
       error: message,
       details: {
-        ...customError[500],
+        ...customError[400],
         data: request,
       },
     };
@@ -206,11 +205,7 @@ function modelResponseError(message, error) {
   if (status) {
     return {
       error: message,
-      details: {
-        status,
-        statusText: error.statusText,
-        data: error.data,
-      },
+      details: error,
     };
   }
   if (error) {
@@ -224,10 +219,7 @@ function modelResponseError(message, error) {
   }
   return {
     error: message,
-    details: {
-      ...customError[500],
-      data: 'Erro interno no servidor, tente mais tarde',
-    },
+    details: customError[500],
   };
 }
 

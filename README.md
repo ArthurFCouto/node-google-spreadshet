@@ -47,16 +47,14 @@ A aplicação é um projeto pessoal para complementação dos estudos, com isso 
 
 Optei por **não utilizar framework** para entender melhor como eles funcionam por *debaixo dos panos*.
 
+Ainda não tenho total dominio sobre o `eslint`, isso justifica o excesso de comentários no inicio dos arquivos.
+
 ## :handshake: Contribuições
 
-- Criticas, sujestões, melhorias ou colaborações, entrar em contato comigo pelos links abaixo:
+- Para criticas, sujestões, melhorias ou colaborações, seguem contatos:
 
 :heavy_check_mark: [Instagram](https://www.instagram.com/arthur_fcouto/)
 
 :heavy_check_mark: [Linkedin](https://www.linkedin.com/in/arthur-couto-b8181743/)
 
 :e-mail: [Email](mailto:arthur_fouto@yahoo.com.br)
-
-
-
-
