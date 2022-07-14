@@ -1,4 +1,3 @@
-/* eslint-disable linebreak-style */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-globals */
 /* eslint-disable no-await-in-loop */
@@ -36,10 +35,9 @@ class PriceStrategy extends CustomInterface {
 
   async _getRows() {
     try {
-      return this._getDocument().then(async (response)=> {
-        const sheet = response.sheetsByIndex[this._index];
-        return sheet.getRows().then((rows)=> rows);
-      });
+      const response = await this._getDocument();
+      const sheet = response.sheetsByIndex[this._index];
+      return sheet.getRows();
     } catch (error) {
       console.error('Erro ao recuperar as linhas da planilha', error);
       throw error;
@@ -48,7 +46,8 @@ class PriceStrategy extends CustomInterface {
 
   async _getSheet() {
     try {
-      return this._getDocument().then(async (response)=> response.sheetsByIndex[this._index]);
+      const response = await this._getDocument();
+      return response.sheetsByIndex[this._index];
     } catch (error) {
       console.error('Erro ao recuperar a planilha', error);
       throw error;
@@ -56,14 +55,8 @@ class PriceStrategy extends CustomInterface {
   }
 
   async _searchForExisting(code) {
-    const prices = [];
     const rows = await this._getRows();
-    for (let i = 0; i < rows.length; i++) {
-      if (rows[i].codigo_produto.toString() === code.toString()) {
-        prices.push(rows[i]);
-      }
-    }
-    return prices;
+    return rows.filter((row)=> row.codigo_produto.toString() === code.toString());
   }
 
   async _validatePrice(data) {
@@ -138,6 +131,10 @@ class PriceStrategy extends CustomInterface {
           }
         }
       }
+      /*
+       * Acima foi verificado se já existe um preço para o produto informado no cnpj informado.
+       * Caso tenha o return é feito neste ponto
+       */
       if (response) {
         return modelResponsePrice(response);
       }

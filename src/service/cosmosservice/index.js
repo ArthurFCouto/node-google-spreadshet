@@ -8,7 +8,7 @@ const customError = require('../../util/error');
 
 require('dotenv').config();
 
-async function handleResults(url) {
+async function requestResults(url) {
   return axios.get(url, {
     headers: {
       'X-Cosmos-Token': process.env.COSMOS_TOKEN,
@@ -33,7 +33,7 @@ class CosmosService {
     if (typeof description === 'string') {
       const query = description.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '+');
       const url = `${process.env.COSMOS_ENDPOINT}/products?query=${query}`;
-      return handleResults(url);
+      return requestResults(url);
     }
     return modelResponseError('Ops! Descrição não enviada ou com formato inválido', customError[400]);
   }
@@ -41,7 +41,7 @@ class CosmosService {
   getByNextPage(page, query) {
     if (page && query && !isNaN(page) && (typeof query === 'string' || typeof query === 'number')) {
       const url = `${process.env.COSMOS_ENDPOINT}/products?page=${page}&query=${query}`;
-      return handleResults(url);
+      return requestResults(url);
     }
     return modelResponseError('Ops! Os parâmetros enviados são inválidos', customError[400]);
   }

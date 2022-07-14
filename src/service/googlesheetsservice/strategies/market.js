@@ -1,9 +1,6 @@
-/* eslint-disable linebreak-style */
 /* eslint-disable no-param-reassign */
-/* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
-/* eslint-disable max-classes-per-file */
 /* eslint-disable no-plusplus */
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const customError = require('../../../util/error');
@@ -35,10 +32,9 @@ class marketStrategies extends customInterface {
 
   async _getRows() {
     try {
-      return this._getDocument().then(async (response)=> {
-        const sheet = response.sheetsByIndex[this._index];
-        return sheet.getRows().then((rows)=> rows);
-      });
+      const response = await this._getDocument();
+      const sheet = response.sheetsByIndex[this._index];
+      return sheet.getRows();
     } catch (error) {
       console.error('Erro ao recuperar as linhas da planilha', error);
       throw error;
@@ -47,7 +43,8 @@ class marketStrategies extends customInterface {
 
   async _getSheet() {
     try {
-      return this._getDocument().then(async (response)=> response.sheetsByIndex[this._index]);
+      const response = await this._getDocument();
+      return response.sheetsByIndex[this._index];
     } catch (error) {
       console.error('Erro ao recuperar a planilha', error);
       throw error;
@@ -55,15 +52,8 @@ class marketStrategies extends customInterface {
   }
 
   async _checkExist(cnpj) {
-    let market;
     const rows = await this._getRows();
-    for (let i = 0; i < rows.length; i++) {
-      if (rows[i].cnpj_mercado.toLowerCase() === cnpj) {
-        market = rows[i];
-        break;
-      }
-    }
-    return market;
+    return rows.find((row)=> row.cnpj_mercado.toLowerCase() === cnpj);
   }
 
   _validateMarket(data) {
@@ -72,7 +62,7 @@ class marketStrategies extends customInterface {
       data = {};
     }
     const {
-      cnpjMercado, nomeMercado, enderecoMercado, numeroMercado, complementoMercado, telefoneMercado, cidadeMercado, cepMercado,
+      cnpjMercado, nomeMercado, telefoneMercado, cidadeMercado, cepMercado,
     } = data;
     if (!nomeMercado || nomeMercado.toString().replace(/\s/g, '').length === 0) {
       error.push({

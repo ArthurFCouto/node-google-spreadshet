@@ -238,7 +238,7 @@ describe('Testando o design strategies - Preços', function () {
   it('Busca todos os preços cadastrados', async ()=> {
     const result = await context.getAll();
     const expected = result[0];
-    const price = expected[PRICE_ACTUAL.codigoProduto];
+    const [price] = Object.values(expected);
     const compare = { ...price[0], atualizadoEm };
     assert.deepEqual(compare, PRICE_ACTUAL);
   });

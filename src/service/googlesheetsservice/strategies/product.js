@@ -1,8 +1,6 @@
-/* eslint-disable linebreak-style */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-globals */
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable no-plusplus */
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const CustomInterface = require('./base/interface');
 const { stringIncludes } = require('../../../util');
@@ -34,10 +32,9 @@ class ProductStrategy extends CustomInterface {
 
   async _getRows() {
     try {
-      return this._getDocument().then(async (response)=> {
-        const sheet = response.sheetsByIndex[this._index];
-        return sheet.getRows().then((rows)=> rows);
-      });
+      const response = await this._getDocument();
+      const sheet = response.sheetsByIndex[this._index];
+      return sheet.getRows();
     } catch (error) {
       console.error('Erro ao recuperar as linhas da planilha', error);
       throw error;
@@ -46,7 +43,8 @@ class ProductStrategy extends CustomInterface {
 
   async _getSheet() {
     try {
-      return this._getDocument().then(async (response)=> response.sheetsByIndex[this._index]);
+      const response = await this._getDocument();
+      return response.sheetsByIndex[this._index];
     } catch (error) {
       console.error('Erro ao recuperar a planilha', error);
       throw error;
@@ -54,17 +52,11 @@ class ProductStrategy extends CustomInterface {
   }
 
   async _checkExist(id) {
-    let product;
     if (typeof id === 'string' || typeof id === 'number') {
       const rows = await this._getRows();
-      for (let i = 0; i < rows.length; i++) {
-        if (rows[i].codigo_produto.toString() === id.toString()) {
-          product = rows[i];
-          break;
-        }
-      }
+      return rows.find((row)=> row.codigo_produto.toString() === id.toString());
     }
-    return product;
+    return undefined;
   }
 
   _validateProduct(data) {
@@ -119,7 +111,7 @@ class ProductStrategy extends CustomInterface {
 
   async create(data) {
     try {
-      const validate = await this._validateProduct(data);
+      const validate = this._validateProduct(data);
       if (validate.length > 0) {
         return modelResponseError('Ops! Não foi possível cadastrar o produto', { ...customError[400], data: validate });
       }
@@ -162,17 +154,12 @@ class ProductStrategy extends CustomInterface {
 
   async getByDescription(description) {
     try {
-      const product = [];
       if (typeof description === 'string' || typeof description === 'number') {
         const rows = await this._getRows();
-        rows.forEach((row)=> {
-          const compare = row.descricao_produto;
-          if (stringIncludes(compare, description)) {
-            product.push(row);
-          }
-        });
+        const products = rows.filter((row)=> (stringIncludes(row.descricao_produto, description)));
+        return modelResponseProduct(products);
       }
-      return modelResponseProduct(product);
+      return modelResponseProduct([]);
     } catch (error) {
       return modelResponseError('Ops! Erro durante a pesquisa pela descrição', error);
     }

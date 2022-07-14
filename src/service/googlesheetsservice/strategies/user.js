@@ -1,10 +1,5 @@
-/* eslint-disable linebreak-style */
 /* eslint-disable no-param-reassign */
-/* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable no-unused-vars */
-/* eslint-disable max-classes-per-file */
-/* eslint-disable no-plusplus */
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const bcrypt = require('bcryptjs');
 const customError = require('../../../util/error');
@@ -48,10 +43,9 @@ class userStrategies extends customInterface {
    */
   async _getRows() {
     try {
-      return this._getDocument().then(async (response)=> {
-        const sheet = response.sheetsByIndex[this._index];
-        return sheet.getRows().then((rows)=> rows);
-      });
+      const response = await this._getDocument();
+      const sheet = response.sheetsByIndex[this._index];
+      return sheet.getRows();
     } catch (error) {
       console.error('Erro ao recuperar as linhas da planilha', error);
       throw error;
@@ -63,7 +57,8 @@ class userStrategies extends customInterface {
    */
   async _getSheet() {
     try {
-      return this._getDocument().then(async (response)=> response.sheetsByIndex[this._index]);
+      const response = await this._getDocument();
+      return response.sheetsByIndex[this._index];
     } catch (error) {
       console.error('Erro ao recuperar a planilha', error);
       throw error;
@@ -74,15 +69,8 @@ class userStrategies extends customInterface {
    * Verifica se o usuário existe, e o retorna caso positivo
    */
   async _checkExist(id) {
-    let user;
     const rows = await this._getRows();
-    for (let i = 0; i < rows.length; i++) {
-      if (rows[i].email_usuario.toLowerCase() === id.toString().toLowerCase()) {
-        user = rows[i];
-        break;
-      }
-    }
-    return user;
+    return rows.find((row)=> row.email_usuario.toLowerCase() === id.toString().toLowerCase());
   }
 
   /*

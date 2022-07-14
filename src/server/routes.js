@@ -1,3 +1,5 @@
+const Router = require('../hooks/routes');
+const RouteNotFoundError = require('../hooks/routes/handleRouterNotFoundError');
 const controller = require('../controller');
 const productController = require('../controller/productController');
 const userController = require('../controller/userController');
@@ -7,8 +9,6 @@ const { modelResponseError } = require('../util/modelsResponse');
 const {
   handleAuth, handleContentTypeJson, handleCors, handleRouteNotFound,
 } = require('../middlewares');
-const Router = require('../hooks/routes');
-const RouteNotFoundError = require('../hooks/routes/handleRouterNotFoundError');
 
 function handleError(error, response) {
   if (error instanceof RouteNotFoundError) {
