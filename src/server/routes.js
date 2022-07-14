@@ -11,6 +11,7 @@ const {
 } = require('../middlewares');
 
 function handleError(error, response) {
+  console.log('Erro interno:', error);
   if (error instanceof RouteNotFoundError) {
     return handleRouteNotFound(error, response);
   }

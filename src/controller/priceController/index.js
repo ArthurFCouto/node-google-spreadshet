@@ -2,6 +2,9 @@
 const { Context, Price } = require('../../service/googlesheetsservice');
 const customError = require('../../util/error');
 const { modelPriceById } = require('./functions');
+const config = require('../../server/config');
+
+const { roles } = config;
 
 class PriceController {
   async getAll(request, response) {

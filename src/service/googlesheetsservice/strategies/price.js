@@ -175,7 +175,7 @@ class PriceStrategy extends CustomInterface {
     try {
       const list = id && await this._searchForExisting(id);
       if (list.length > 0) {
-        list.map(async (row)=> { await row.del(); });
+        list.map(async (row)=> row.del());
         /*
          * Quando há muitas linhas a excluir, o programa não exclui todas, por isso é preciso a recursividade
          */
