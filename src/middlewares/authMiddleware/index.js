@@ -1,14 +1,15 @@
 const jwt = require('jsonwebtoken');
 const { Context, User } = require('../../service/googlesheetsservice');
 const { modelResponseError } = require('../../util/modelsResponse');
+const customError = require('../../util/error');
 
 require('dotenv').config();
 
 async function handleAuthMiddleware(request, response) {
   try {
     const { authorization } = request.headers;
-    const user = {};
     if (authorization) {
+      const user = {};
       const context = new Context(new User());
       const [, token] = authorization.split(' ');
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -18,10 +19,16 @@ async function handleAuthMiddleware(request, response) {
         user.email = email;
         user.role = role;
       }
+      request.user = user;
+    } else {
+      response.writeHead(401);
+      response.end(JSON.stringify({
+        error: 'Ops! Usuário não autenticado',
+        details: customError[401],
+      }));
     }
-    request.user = user;
   } catch (error) {
-    const errorResponse = modelResponseError('Ops! Houve um problema com seu token, favor repetir a operação', error);
+    const errorResponse = modelResponseError('Ops! Houve um problema com seu token', error);
     response.writeHead(errorResponse.details.status);
     response.end(JSON.stringify(errorResponse));
   }

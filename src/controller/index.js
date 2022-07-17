@@ -2,8 +2,8 @@ const { readFile } = require('fs/promises');
 const path = require('path');
 const { modelResponseError } = require('../util/modelsResponse');
 /*
-  Função criada com o unico intuido de trabalhar a leitura de arquivos e disponibilizar ao cliente
-*/
+ * Função criada com o unico intuido de trabalhar a leitura de arquivos e disponibilizar ao cliente
+ */
 class Controller {
   async getLogo(request, response) {
     try {

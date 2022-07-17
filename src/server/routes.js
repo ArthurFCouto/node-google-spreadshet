@@ -7,11 +7,10 @@ const priceController = require('../controller/priceController');
 const marketController = require('../controller/marketController');
 const { modelResponseError } = require('../util/modelsResponse');
 const {
-  handleAuth, handleContentTypeJson, handleCors, handleRouteNotFound,
+  handleAuth, handleContentTypeJson, handleCors, handleRouteNotFound, handleRoleAdmin,
 } = require('../middlewares');
 
 function handleError(error, response) {
-  console.log('Erro interno:', error);
   if (error instanceof RouteNotFoundError) {
     return handleRouteNotFound(error, response);
   }
@@ -39,7 +38,7 @@ function handlerRoutes(request, response) {
   router.get('/preco', priceController.getAll);
   router.get('/preco/:id(\\d+)', priceController.getById);
   router.get('/mercado', marketController.getAll);
-  router.get('/mercado/:cnpj(\\d+)', marketController.getById);
+  router.get('/mercado/:id(\\d+)', marketController.getById);
   /*
    * Os métodos abaixo requerem autenticação
    */
@@ -48,12 +47,12 @@ function handlerRoutes(request, response) {
   /*
    * Os métodos abaixo requerem autenticação e autorização
    */
-  router.get('/usuario', handleAuth, userController.getAll);
-  router.get('/usuario/detalhes', handleAuth, userController.getById);
-  router.delete('/usuario', handleAuth, userController.delete);
-  router.delete('/produto/:id(\\d+)', handleAuth, productController.delete);
-  router.post('/mercado', handleAuth, marketController.save);
-  router.delete('/mercado/:cnpj(\\d+)', handleAuth, marketController.delete);
+  router.get('/usuario', handleAuth, handleRoleAdmin, userController.getAll);
+  router.get('/usuario/detalhes', handleAuth, handleRoleAdmin, userController.getById);
+  router.delete('/usuario', handleAuth, handleRoleAdmin, userController.delete);
+  router.delete('/produto/:id(\\d+)', handleAuth, handleRoleAdmin, productController.delete);
+  router.post('/mercado', handleAuth, handleRoleAdmin, marketController.save);
+  router.delete('/mercado/:id(\\d+)', handleAuth, handleRoleAdmin, marketController.delete);
   /*
    * Processa a requisição atual
    */

@@ -1,10 +1,5 @@
-/* eslint-disable no-restricted-globals */
 const { Context, Price } = require('../../service/googlesheetsservice');
-const customError = require('../../util/error');
 const { modelPriceById } = require('./functions');
-const config = require('../../server/config');
-
-const { roles } = config;
 
 class PriceController {
   async getAll(request, response) {
@@ -13,76 +8,41 @@ class PriceController {
     if (data && data.error) {
       response.writeHead(data.details.status);
     }
-    return response.end(JSON.stringify(data));
+    response.end(JSON.stringify(data));
   }
 
   async getById(request, response) {
     const context = new Context(new Price());
     const { id } = request.path;
-    if (id) {
-      const data = await context.getById(id);
-      if (data && data.error) {
-        response.writeHead(data.details.status);
-        return response.end(JSON.stringify(data));
-      }
-      const responseData = await modelPriceById(data);
-      return response.end(JSON.stringify(responseData));
+    const data = await context.getById(id);
+    if (data && data.error) {
+      response.writeHead(data.details.status);
+      response.end(JSON.stringify(data));
+      return;
     }
-    response.writeHead(404);
-    return response.end(JSON.stringify({
-      error: 'Ops! Não foi encontrado precos com os dados enviados',
-      details: customError[404],
-    }));
+    const responseData = await modelPriceById(data);
+    response.end(JSON.stringify(responseData));
   }
 
   async save(request, response) {
-    const { email } = request.user;
-    if (!email) {
-      response.writeHead(401);
-      return response.end(JSON.stringify({
-        error: 'Ops! Usuário não autenticado',
-        details: customError[401],
-      }));
-    }
     const context = new Context(new Price());
+    const { email } = request.user;
     const { body } = request;
     const data = await context.create({ ...body, emailUsuario: email });
     if (data && data.error) {
       response.writeHead(data.details.status);
     }
-    return response.end(JSON.stringify(data));
+    response.end(JSON.stringify(data));
   }
 
   async delete(request, response) {
-    const { role } = request.user;
-    if (!role) {
-      response.writeHead(401);
-      return response.end(JSON.stringify({
-        error: 'Ops! Usuário não autenticado',
-        details: customError[401],
-      }));
-    }
-    if (role !== roles.admin) {
-      response.writeHead(403);
-      return response.end(JSON.stringify({
-        error: 'Ops! Usuário sem autorização para a operação',
-        details: customError[403],
-      }));
-    }
     const { id } = request.path;
-    if (id) {
-      const context = new Context(new Price());
-      const data = await context.delete(id);
-      if (data && data.error) {
-        response.writeHead(data.details.status);
-      }
-      return response.end(JSON.stringify(data));
+    const context = new Context(new Price());
+    const data = await context.delete(id);
+    if (data && data.error) {
+      response.writeHead(data.details.status);
     }
-    response.writeHead(404);
-    return response.end(JSON.stringify({
-      error: 'Ops! Não foi encontrado precos com os dados enviados',
-      details: customError[404],
-    }));
+    response.end(JSON.stringify(data));
   }
 }
 

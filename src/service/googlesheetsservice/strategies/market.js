@@ -1,7 +1,5 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-plusplus */
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const customError = require('../../../util/error');
 const { modelResponseError, modelResponseMarket } = require('../../../util/modelsResponse');

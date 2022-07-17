@@ -2,9 +2,6 @@
 const cosmosService = require('../../service/cosmosservice');
 const { Context, Product } = require('../../service/googlesheetsservice');
 const customError = require('../../util/error');
-const config = require('../../server/config');
-
-const { roles } = config;
 
 class ProductController {
   async getAll(request, response) {
@@ -13,7 +10,7 @@ class ProductController {
     if (data && data.error) {
       response.writeHead(data.details.status);
     }
-    return response.end(JSON.stringify(data));
+    response.end(JSON.stringify(data));
   }
 
   async getByDescription(request, response) {
@@ -29,12 +26,13 @@ class ProductController {
       if (data && data.error) {
         response.writeHead(data.details.status);
       }
-      return response.end(JSON.stringify(data));
+      response.end(JSON.stringify(data));
+      return;
     }
     response.writeHead(400);
-    return response.end(JSON.stringify({
-      error: 'Ops! Ocorreu um erro durante a pesquisa',
-      details: { ...customError[400], data: 'Enviar parametro description' },
+    response.end(JSON.stringify({
+      error: 'Ops! Favor enviar o parametro description',
+      details: customError[400],
     }));
   }
 
@@ -43,7 +41,8 @@ class ProductController {
     const { id } = request.path;
     let data = await context.getById(id);
     if (data && !data.error) {
-      return response.end(JSON.stringify(data));
+      response.end(JSON.stringify(data));
+      return;
     }
     data = await cosmosService.geBytLins(id);
     if (data && data.error) {
@@ -54,7 +53,7 @@ class ProductController {
        */
       context.create(data);
     }
-    return response.end(JSON.stringify(data));
+    response.end(JSON.stringify(data));
   }
 
   async getNextPage(request, response) {
@@ -64,45 +63,24 @@ class ProductController {
       if (data && data.error) {
         response.writeHead(data.details.status);
       }
-      return response.end(JSON.stringify(data));
+      response.end(JSON.stringify(data));
+      return;
     }
     response.writeHead(400);
-    return response.end(JSON.stringify({
-      error: 'Ops! Não foram encontrados produtos com os dados enviados',
-      details: { ...customError[400], data: 'Conferir os parametros page e query' },
+    response.end(JSON.stringify({
+      error: 'Ops! Conferir os parametros page e query',
+      details: customError[400],
     }));
   }
 
   async delete(request, response) {
-    const { role } = request.user;
-    if (!role) {
-      response.writeHead(401);
-      return response.end(JSON.stringify({
-        error: 'Ops! Usuário não autenticado',
-        details: customError[401],
-      }));
-    }
-    if (role !== roles.admin) {
-      response.writeHead(403);
-      return response.end(JSON.stringify({
-        error: 'Ops! Usuário sem autorização para a operação',
-        details: customError[403],
-      }));
-    }
     const context = new Context(new Product());
     const { id } = request.path;
-    if (id) {
-      const data = await context.delete(id);
-      if (data && data.error) {
-        response.writeHead(data.details.status);
-      }
-      return response.end(JSON.stringify(data));
+    const data = await context.delete(id);
+    if (data && data.error) {
+      response.writeHead(data.details.status);
     }
-    response.writeHead(404);
-    return response.end(JSON.stringify({
-      error: 'Ops! Não foi encontrado um produto com os dados enviados',
-      details: customError[404],
-    }));
+    response.end(JSON.stringify(data));
   }
 }
 

@@ -6,13 +6,13 @@ const handleMiddlewares = async (request, response, callback)=> {
   const middlewares = callback.slice(0, latestPosition);
   /*
    * Está sendo utilizado for e não forEach pois este não aguarda a finalização das promisses
-   * Como um middleware pode dependenter de um antecessor, não é recomendável o uso do Promise.all
+   * Como um middleware pode dependenter de um antecessor, não farei uso do Promise.all
    */
   for (const middleware of middlewares) {
+    await middleware(request, response);
     if (response.finished) {
       break;
     }
-    await middleware(request, response);
   }
   if (response.finished) {
     return;
